@@ -7,8 +7,7 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fileUpload = require("express-fileupload");
 const expressValidator = require("express-validator");
-// const db = require("./models");
-// const Question = db.question;
+
 const app = express();
 app.use(fileUpload());
 const dbConfig = require("./config/db.config");
@@ -60,8 +59,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: "localhost",
   dialect: "mysql",
 });
-// 03457306889;
-// 03457321414;
+
 // // Fetch all table names
 // async function getAllTableNames() {
 //   try {
@@ -742,5 +740,5 @@ if (!req.files || Object.keys(req.files).length === 0) {
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Server is running on port $(PORT).`);
+  console.log(`Server is running on port ${PORT}`);
 });
