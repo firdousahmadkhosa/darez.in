@@ -302,6 +302,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // });
 
 //simple route
+
+app.get("/", async (req, res) => {
+  
+    return res.send("hello from backend");
+ 
+});
+
+
 app.get("/getQuestionsWithAnswers", async (req, res) => {
   try {
     const questionsWithAnswers = await Question.findAll({
@@ -341,7 +349,7 @@ app.get("/getQuestionWithAnswerById/:q_id", async (req, res) => {
 });
 
 app.post("/createAnswerByQuestionId/:q_id", async (req, res) => {
-  await verifyToken(req, res, next);
+  await verifyToken(req, res);
   if (!req.files || Object.keys(req.files).length === 0) {
   return  res.status(400).send("No files were uploaded.");
     try {
@@ -374,10 +382,10 @@ app.post("/createAnswerByQuestionId/:q_id", async (req, res) => {
       const path_file = "./public/";
       const fileOne = "img" + Date.now() + req.files.img.name;
       //-----------------move profile into server-------------------------------//
-      req.files.img.mv(path_file + "" + fileOne, function (err) {
+     await req.files.img.mv(path_file + "" + fileOne, async function (err) {
         if (err) console.log("error occured");
       });
-     
+    
       await Answer.create(
         {
           q_id:req.params.q_id,
