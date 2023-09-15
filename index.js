@@ -328,7 +328,7 @@ app.get("/getQuestionsWithAnswers", async (req, res) => {
 });
 
 app.get("/getQuestions", async (req, res) => {
-  await verifyToken(req, res, next);
+  await verifyToken(req, res);
   try {
     const questions = await Question.findAll();
     return res.send(questions);
@@ -339,7 +339,7 @@ app.get("/getQuestions", async (req, res) => {
 });
 
 app.get("/getQuestionWithAnswerById/:q_id", async (req, res) => {
-  await verifyToken(req, res, next);
+  await verifyToken(req, res);
   try {
     const questionWithAnswerById = await Question.findOne({
       where: { q_id: req.params.q_id },
@@ -410,7 +410,7 @@ app.post("/createAnswerByQuestionId/:q_id", async (req, res) => {
 
 
 app.post("/updateAnswerById/:a_id", async (req, res) => {
-  await verifyToken(req, res, next);
+  await verifyToken(req, res);
   if (!req.files || Object.keys(req.files).length === 0) {
     // res.status(400).send("No files were uploaded.");
     try {
@@ -478,7 +478,7 @@ app.post("/updateAnswerById/:a_id", async (req, res) => {
 
 
 app.post("/updateQuestion", async (req, res) => {
-  await verifyToken(req, res, next);
+  await verifyToken(req, res);
   try {
     await Question.update(
       {
@@ -564,7 +564,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-const verifyToken = async (req, res, next) => {
+const verifyToken = async (req, res) => {
   let token = req.headers["access_token"];
 
   if (!token) {
@@ -588,8 +588,8 @@ const verifyToken = async (req, res, next) => {
   });
 };
 
-app.post("/updateAdmin", async (req, res, next) => {
-  await verifyToken(req, res, next);
+app.post("/updateAdmin", async (req, res) => {
+  await verifyToken(req, res);
   if (
     req.body.username !== null ||
     req.body.username !== "" ||
