@@ -750,7 +750,7 @@ app.get("/", async (req, res) => {
 //   res.json({ message: "Welcome to Turing.com" });
 // });
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
