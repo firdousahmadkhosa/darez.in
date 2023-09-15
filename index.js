@@ -61,7 +61,7 @@ app.use(
 // });
 
 
-const sequelize = new Sequelize("friendshipdares", "root", "Pakistan@!", {
+const sequelize = new Sequelize("friendshipdares", "root", "", {
   host: "localhost",
   dialect: "mysql",
 });
