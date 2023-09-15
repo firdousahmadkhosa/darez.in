@@ -55,10 +55,17 @@ app.use(
   })
 );
 // Sequelize setup
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+// const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+//   host: "localhost",
+//   dialect: "mysql",
+// });
+
+
+const sequelize = new Sequelize("friendshipdares", "root", "Pakistan@!", {
   host: "localhost",
   dialect: "mysql",
 });
+
 
 // // Fetch all table names
 // async function getAllTableNames() {
