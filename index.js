@@ -62,7 +62,7 @@ app.use(
 
 
 const sequelize = new Sequelize("friendshipdares", "root", "Pakistan@!", {
-  host: "127.0.0.1",
+  host: "localhost",
   dialect: "mysql",
 });
 
