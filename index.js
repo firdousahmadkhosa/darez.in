@@ -61,9 +61,18 @@ app.use(
 // });
 
 
-const sequelize = new Sequelize("friendshipdares", "root", "", {
-  host: "localhost",
-  dialect: "mysql",
+const sequelize = new Sequelize(
+  "friendshipdares",
+  "new_username",
+  "MyP@ssw0rd2023",
+  {
+    host: "localhost",
+    dialect: "mysql",
+  }
+);
+
+sequelize.sync().then(() => {
+  console.log("Database synchronized.");
 });
 
 
@@ -292,7 +301,7 @@ Quiz.belongsTo(Challenge, { foreignKey: 'quiz_uid', targetKey: 'quiz_uid' });
 
 
 // Sync the model with the database
- sequelize.sync();
+
 
 // app.use(cors(corsOptions));
 app.use(cors());
@@ -309,9 +318,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Define your middleware and routes here
 
 // Sync the database
-// db.sequelize.sync().then(() => {
-//   console.log("Database synchronized.");
-// });
+
 
 //simple route
 
