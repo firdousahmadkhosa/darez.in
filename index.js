@@ -285,7 +285,7 @@ Quiz.belongsTo(Challenge, { foreignKey: 'quiz_uid', targetKey: 'quiz_uid' });
 
 
 // Sync the model with the database
-// sequelize.sync();
+ sequelize.sync();
 
 // app.use(cors(corsOptions));
 app.use(cors());
