@@ -322,14 +322,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //simple route
 
-app.get("/", async (req, res) => {
+app.get("/", async (req, res,next) => {
   
     return res.send("hello from backend5");
  
 });
 
 
-app.get("/getQuestionsWithAnswers", async (req, res) => {
+app.get("/getQuestionsWithAnswers", async (req, res,next) => {
   try {
     const questionsWithAnswers = await Question.findAll({
       include: [Answer],
@@ -341,8 +341,8 @@ app.get("/getQuestionsWithAnswers", async (req, res) => {
   }
 });
 
-app.get("/getQuestions", async (req, res) => {
-  await verifyToken(req, res);
+app.get("/getQuestions", async (req, res,next) => {
+ 
   try {
     const questions = await Question.findAll();
     return res.send(questions);
@@ -352,9 +352,9 @@ app.get("/getQuestions", async (req, res) => {
   }
 });
 
-app.get("/getQuestionWithAnswerById/:q_id", async (req, res) => {
-  console.log(req.headers);
-  await verifyToken(req, res);
+app.get("/getQuestionWithAnswerById/:q_id", checkAuthorization,async (req, res,next) => {
+  // console.log(req.headers);
+ 
   try {
     const questionWithAnswerById = await Question.findOne({
       where: { q_id: req.params.q_id },
@@ -368,8 +368,8 @@ app.get("/getQuestionWithAnswerById/:q_id", async (req, res) => {
   }
 });
 
-app.post("/createAnswerByQuestionId/:q_id", async (req, res) => {
-  await verifyToken(req, res);
+app.post("/createAnswerByQuestionId/:q_id",checkAuthorization, async (req, res,next) => {
+ 
   if (!req.files || Object.keys(req.files).length === 0) {
   return  res.status(400).send("No files were uploaded.");
     try {
@@ -424,8 +424,8 @@ app.post("/createAnswerByQuestionId/:q_id", async (req, res) => {
 });
 
 
-app.post("/updateAnswerById/:a_id", async (req, res) => {
-  await verifyToken(req, res);
+app.post("/updateAnswerById/:a_id",checkAuthorization, async (req, res,next) => {
+ 
   if (!req.files || Object.keys(req.files).length === 0) {
     // res.status(400).send("No files were uploaded.");
     try {
@@ -492,8 +492,8 @@ app.post("/updateAnswerById/:a_id", async (req, res) => {
 });
 
 
-app.post("/updateQuestion", async (req, res) => {
-  await verifyToken(req, res);
+app.post("/updateQuestion",checkAuthorization, async (req, res,next) => {
+ 
   try {
     await Question.update(
       {
@@ -512,8 +512,8 @@ app.post("/updateQuestion", async (req, res) => {
   }
 });
 
-app.post("/createQuestion", async (req, res) => {
-  await verifyToken(req, res);
+app.post("/createQuestion", checkAuthorization,async (req, res,next) => {
+ 
   try {
     await Question.create(
       {
@@ -529,7 +529,7 @@ app.post("/createQuestion", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req, res,next) => {
   if (
     req.body.username !== null ||
     req.body.username !== "" ||
@@ -579,32 +579,69 @@ app.post("/login", async (req, res) => {
   }
 });
 
-const verifyToken = async (req, res) => {
-  let token = req.headers["Authorization"];
 
-  if (!token) {
-    return res.status(200).send({
-      status: 400,
-      message: "No token provided!",
+// Function to verify the JWT token asynchronously.
+async function verifyToken(token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, "bezkoder-secret-key", (err, decoded) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(decoded);
+      }
     });
-  }
-
-  await jwt.verify(token, "bezkoder-secret-key", async (err, decoded) => {
-    if (err) {
-      return res.status(200).send({
-        status: 400,
-        message:
-          "Please provide a token to authorized otherwise you Unauthorized!",
-      });
-    }
-    // console.log(decoded);
-    req.body.userId = decoded.id;
-    return;
   });
-};
+}
 
-app.post("/updateAdmin", async (req, res) => {
-  await verifyToken(req, res);
+
+
+// Step 1: Create an async middleware function to check the authorization token.
+async function checkAuthorization(req, res, next) {
+  // Extract the token from the request headers or query parameters, depending on your setup.
+  const token = req.headers.authorization || req.query.token;
+
+  try {
+    // Verify the token asynchronously using async/await.
+    const decodedToken = await verifyToken(token);
+
+    // Attach the decoded user information to the request for later use.
+    // req.user = decodedToken;
+      req.body.userId = decodedToken.id;
+
+    next(); // Continue to the next middleware or route handler.
+  } catch (error) {
+    // If the token is invalid or has expired, respond with an unauthorized status code (401).
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+}
+
+// const verifyToken = async (req, res,next) => {
+//   let token = req.headers["Authorization"];
+//   console.log(token);
+//   if (!token) {
+//     return res.status(200).send({
+//       status: 400,
+//       message: "No token provided!",
+//     });
+//   }
+
+//    jwt.verify(token, "bezkoder-secret-key",  (err, decoded) => {
+//     if (err) {
+//       return res.status(200).send({
+//         status: 400,
+//         message:
+//           "Please provide a token to authorized otherwise you Unauthorized!",
+//       });
+//     }
+//     // console.log(decoded);
+//     req.body.userId = decoded.id;
+//     console.log(decoded);
+//     next();
+//   });
+// };
+
+app.post("/updateAdmin", checkAuthorization, async (req, res,next) => {
+ 
   if (
     req.body.username !== null ||
     req.body.username !== "" ||
@@ -633,8 +670,8 @@ app.post("/updateAdmin", async (req, res) => {
   }
 });
 
-app.get("/getSite", async (req, res) => {
-  // await verifyToken(req, res);
+app.get("/getSite", async (req, res,next) => {
+  //
 
   try {
     const siteInformation = await Site.findAll();
@@ -645,8 +682,8 @@ app.get("/getSite", async (req, res) => {
   }
 });
 
-app.post("/updateSite", async (req, res) => {
-  await verifyToken(req, res);
+app.post("/updateSite",checkAuthorization, async (req, res,next) => {
+ 
 if (!req.files || Object.keys(req.files).length === 0) {
   try {
     const {
