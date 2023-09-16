@@ -580,7 +580,7 @@ app.post("/login", async (req, res) => {
 });
 
 const verifyToken = async (req, res) => {
-  let token = req.headers["access_token"];
+  let token = req.headers["Authorization"];
 
   if (!token) {
     return res.status(200).send({
