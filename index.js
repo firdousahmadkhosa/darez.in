@@ -55,21 +55,21 @@ app.use(
   })
 );
 // Sequelize setup
-// const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-//   host: "localhost",
-//   dialect: "mysql",
-// });
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: "localhost",
+  dialect: "mysql",
+});
 
 
-const sequelize = new Sequelize(
-  "friendshipdares",
-  "new_username",
-  "MyP@ssw0rd2023",
-  {
-    host: "localhost",
-    dialect: "mysql",
-  }
-);
+// const sequelize = new Sequelize(
+//   "friendshipdares",
+//   "new_username",
+//   "MyP@ssw0rd2023",
+//   {
+//     host: "localhost",
+//     dialect: "mysql",
+//   }
+// );
 
 sequelize.sync().then(() => {
   console.log("Database synchronized.");
@@ -330,15 +330,17 @@ app.get("/", async (req, res,next) => {
 
 
 app.get("/getQuestionsWithAnswers", async (req, res,next) => {
-  try {
-    const questionsWithAnswers = await Question.findAll({ limit: 20 },{
-      include: [Answer],
-    });
-    return res.send(questionsWithAnswers);
-  } catch (error) {
-    console.error("Error fetching questions with answers:", error);
-    throw error;
-  }
+ try {
+   const questionsWithAnswers = await Question.findAll({
+     include: [Answer],
+     limit: 20, // Limit the number of records to 20
+   });
+   return res.send(questionsWithAnswers);
+ } catch (error) {
+   console.error("Error fetching questions with answers:", error);
+   throw error;
+ }
+
 });
 
 app.get("/getQuestions", async (req, res,next) => {
