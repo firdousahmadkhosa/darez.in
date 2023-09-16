@@ -55,21 +55,21 @@ app.use(
   })
 );
 // Sequelize setup
-// const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-//   host: "localhost",
-//   dialect: "mysql",
-// });
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: "localhost",
+  dialect: "mysql",
+});
 
 
-const sequelize = new Sequelize(
-  "friendshipdares",
-  "new_username",
-  "MyP@ssw0rd2023",
-  {
-    host: "localhost",
-    dialect: "mysql",
-  }
-);
+// const sequelize = new Sequelize(
+//   "friendshipdares",
+//   "new_username",
+//   "MyP@ssw0rd2023",
+//   {
+//     host: "localhost",
+//     dialect: "mysql",
+//   }
+// );
 
 sequelize.sync().then(() => {
   console.log("Database synchronized.");
@@ -323,15 +323,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //simple route
 
 app.get("/", async (req, res,next) => {
-  
-    return res.send("hello from backend5");
+  console.log("hello from backend")
+    return res.send("hello from backend");
  
 });
 
 
 app.get("/getQuestionsWithAnswers", async (req, res,next) => {
   try {
-    const questionsWithAnswers = await Question.findAll({
+    const questionsWithAnswers = await Question.findAll({ limit: 20 },{
       include: [Answer],
     });
     return res.send(questionsWithAnswers);
