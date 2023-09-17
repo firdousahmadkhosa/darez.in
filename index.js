@@ -402,7 +402,7 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
         q_ctitle: questions[i].q_ctitle,
         q_status: questions[i].q_status,
         Answers: questions[i].Answers,
-        owner_id: answersArray[i],
+        owner_a_id: answersArray[i],
       });
 
         //  qqqq.push({ owner_id: answersArray[i] });
