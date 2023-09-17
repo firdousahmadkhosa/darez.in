@@ -369,6 +369,7 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
   
      const quiz_data = JSON.parse(findOneQuiz.quiz_data);
      const keysArray = quiz_data.map((obj) => parseInt(Object.keys(obj)[0]));
+     const answersArray = quiz_data.map((obj) => Object.values(obj)[0]);
     //  console.log(keysArray);
     // console.log("question",keysArray.length);
 
@@ -382,10 +383,12 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
     include: [Answer],
   });
 
+  
   // questions will contain an array of question objects that match the IDs
   // console.log(questions);
     // console.log("show questions", questions.length);
-  return res.json(questions);
+  
+  return res.json({ questions, answersArray });
 } catch (error) {
   console.error(error);
 }
@@ -400,30 +403,69 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
    return res.status(500).json({ error: "Internal server error" });
  }
 });
+
+function calculateScore(array1, array2) {
+  return array1.reduce((score, question1) => {
+    const questionId1 = Object.keys(question1)[0];
+    const answerId1 = question1[questionId1];
+
+    const matchingQuestion = array2.find((question2) => {
+      const questionId2 = Object.keys(question2)[0];
+      const answerId2 = question2[questionId2];
+      return questionId1 === questionId2 && answerId1 === answerId2;
+    });
+
+    return matchingQuestion ? score + 1 : score;
+  }, 0);
+}
+
+
 app.post("/acceptChallenge", async (req, res, next) => {
   const { quiz_uid, c_name, quiz_data } = req.body;
-  
+
+  try {
+    const findOneQuiz = await Quiz.findOne({ where: { quiz_uid: quiz_uid } });
+    if (findOneQuiz) {
+      const find_quiz_data = JSON.parse(findOneQuiz.quiz_data);
+      console.log(find_quiz_data);
+      const score = calculateScore(quiz_data, find_quiz_data);
+      // console.log("Score:", score);
+
+      const newQuizData = {
+        quiz_uid: quiz_uid,
+        c_score: score,
+        c_name: c_name,
+      };
+
+      findOneQuiz.quiz_view = findOneQuiz.quiz_view+1;
+        await findOneQuiz.save();
+
+      Challenge.create(newQuizData)
+        .then((quiz) => {
+          return res.send({
+            status: 200,
+            message: "Quiz created successfully",
+            newQuizData,
+          });
+          console.log("Quiz saved:", quiz.toJSON());
+        })
+        .catch((error) => {
+          console.error("Error saving quiz:", error);
+          throw error;
+        });
+
+      // Return the found quiz as JSON response
+    } else {
+      // Quiz with the given quiz_uid was not found
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 
 
-  const newQuizData = {
-    quiz_uid: quiz_uid,
-    c_score: c_score,
-    c_name: c_name,
-  };
-
-  Quiz.create(newQuizData)
-    .then((quiz) => {
-      return res.send({
-        status: 200,
-        message: "Quiz created successfully",
-        newQuizData,
-      });
-      console.log("Quiz saved:", quiz.toJSON());
-    })
-    .catch((error) => {
-      console.error("Error saving quiz:", error);
-      throw error;
-    });
 });
 
 
