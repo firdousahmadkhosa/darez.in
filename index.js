@@ -7,11 +7,11 @@ const jwt = require("jsonwebtoken");
 const path = require("path");
 const fileUpload = require("express-fileupload");
 const expressValidator = require("express-validator");
-
+const { v4: uuidv4 } = require("uuid");
 const app = express();
 app.use(fileUpload());
 const dbConfig = require("./config/db.config");
-const { Sequelize, DataTypes } = require("sequelize");
+const { Op ,Sequelize, DataTypes } = require("sequelize");
 const corsOptions = {
   origin: "http://localhost:8080",
 };
@@ -296,8 +296,11 @@ Question.hasMany(Answer, { foreignKey: "q_id" }); // Specify the foreign key nam
 Answer.belongsTo(Question, { foreignKey: "q_id" }); // Specify the foreign key name
 // Define associations between models, e.g., Admin.hasMany(Answer);
 
-Challenge.hasMany(Quiz, { foreignKey: 'quiz_uid', sourceKey: 'quiz_uid' });
-Quiz.belongsTo(Challenge, { foreignKey: 'quiz_uid', targetKey: 'quiz_uid' });
+Quiz.hasMany(Challenge, { foreignKey: "quiz_uid", });
+Challenge.belongsTo(Quiz, {
+  foreignKey: "quiz_uid",
+  
+});
 
 
 // Sync the model with the database
@@ -326,6 +329,101 @@ app.get("/", async (req, res,next) => {
   console.log("hello from backend")
     return res.send("hello from backend");
  
+});
+
+
+app.post("/createQuiz", async (req, res, next) => {
+const { quiz_performer, quiz_data } = req.body;
+const newQuizData = {
+  quiz_uid: uuidv4(),
+  quiz_performer: quiz_performer,
+  quiz_data: JSON.stringify(quiz_data),
+  quiz_view: 0,
+  quiz_hash: Date.now(),
+};
+
+Quiz.create(newQuizData)
+  .then((quiz) => {
+      return res.send({
+        status: 200,
+        message: "Quiz created successfully",
+        newQuizData,
+      });
+    console.log("Quiz saved:", quiz.toJSON());
+  })
+  .catch((error) => {
+  
+    console.error("Error saving quiz:", error);
+    throw error;
+  });
+
+
+});
+app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
+ const quiz_uid = req.params.quiz_uid;
+ try {
+   const findOneQuiz = await Quiz.findOne({ where: { quiz_uid: quiz_uid } });
+   if (findOneQuiz) {
+     // Quiz with the given quiz_uid was found
+    //  console.log(findOneQuiz.quiz_data);
+  
+     const quiz_data = JSON.parse(findOneQuiz.quiz_data);
+     const keysArray = quiz_data.map((obj) => parseInt(Object.keys(obj)[0]));
+    //  console.log(keysArray);
+    // console.log("question",keysArray.length);
+
+     try {
+  const questions = await Question.findAll({
+    where: {
+      q_id: {
+        [Op.in]: keysArray,
+      },
+    },
+    include: [Answer],
+  });
+
+  // questions will contain an array of question objects that match the IDs
+  // console.log(questions);
+    // console.log("show questions", questions.length);
+  return res.json(questions);
+} catch (error) {
+  console.error(error);
+}
+     // Return the found quiz as JSON response
+   } else {
+     // Quiz with the given quiz_uid was not found
+     return res.status(404).json({ error: "Quiz not found" });
+   }
+ } catch (error) {
+   // Handle any errors that occur during the database query
+   console.error(error);
+   return res.status(500).json({ error: "Internal server error" });
+ }
+});
+app.post("/acceptChallenge", async (req, res, next) => {
+  const { quiz_uid, c_name, quiz_data } = req.body;
+  
+
+
+  const newQuizData = {
+    quiz_uid: quiz_uid,
+    c_score: c_score,
+    c_name: c_name,
+  };
+
+  Quiz.create(newQuizData)
+    .then((quiz) => {
+      return res.send({
+        status: 200,
+        message: "Quiz created successfully",
+        newQuizData,
+      });
+      console.log("Quiz saved:", quiz.toJSON());
+    })
+    .catch((error) => {
+      console.error("Error saving quiz:", error);
+      throw error;
+    });
 });
 
 
@@ -800,6 +898,8 @@ if (!req.files || Object.keys(req.files).length === 0) {
     }
 }
 });
+
+
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to Turing.com" });
