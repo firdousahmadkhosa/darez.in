@@ -371,25 +371,58 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
      const keysArray = quiz_data.map((obj) => parseInt(Object.keys(obj)[0]));
      const answersArray = quiz_data.map((obj) => Object.values(obj)[0]);
     //  console.log(keysArray);
+    // console.log(answersArray);
     // console.log("question",keysArray.length);
 
      try {
-  const questions = await Question.findAll({
-    where: {
-      q_id: {
-        [Op.in]: keysArray,
-      },
-    },
-    include: [Answer],
-  });
+       const questions = await Question.findAll({
+         where: {
+           q_id: {
+             [Op.in]: keysArray,
+           },
+         },
+         include: [Answer],
+       });
 
-  
-  // questions will contain an array of question objects that match the IDs
-  // console.log(questions);
-    // console.log("show questions", questions.length);
-  
-  return res.json({ questions, answersArray });
-} catch (error) {
+       let qqqq = [];
+//        // Iterate through the questions array and add the owner_id property from the answer array
+//        questions.forEach((question, i) => {
+//         //  console.log(i);
+//          question.owner_id = answersArray[i];
+// qqqq.push(question);
+
+//         //  delete question.q_id; 
+//         //  console.log(question);
+//        });
+
+       for(let i = 0; i<questions.length; ++i){
+      qqqq.push({
+        q_id: questions[i].q_id,
+        q_title: questions[i].q_title,
+        q_ctitle: questions[i].q_ctitle,
+        q_status: questions[i].q_status,
+        Answers: questions[i].Answers,
+        owner_id: answersArray[i],
+      });
+
+        //  qqqq.push({ owner_id: answersArray[i] });
+        //  questions[i].owner_id = answersArray[i];
+       }
+
+        
+      //  delete questions[0].q_id;
+
+   
+
+      
+
+       // Now, each question object in the questions array has an owner_id property
+      //  console.log(questions);
+    
+      // const myTimeout = setTimeout(()=>{console.log('done')}, 5000);
+console.log("-------------------------------");
+        res.json(qqqq);
+     } catch (error) {
   console.error(error);
 }
      // Return the found quiz as JSON response
