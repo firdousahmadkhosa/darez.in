@@ -365,12 +365,12 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
    const findOneQuiz = await Quiz.findOne({ where: { quiz_uid: quiz_uid } });
    if (findOneQuiz) {
      // Quiz with the given quiz_uid was found
-    //  console.log(findOneQuiz.quiz_data);
+    //  console.log(findOneQuiz);
   
      const quiz_data = JSON.parse(findOneQuiz.quiz_data);
      const keysArray = quiz_data.map((obj) => parseInt(Object.keys(obj)[0]));
      const answersArray = quiz_data.map((obj) => Object.values(obj)[0]);
-    //  console.log(keysArray);
+     console.log(quiz_data);
     // console.log(answersArray);
     // console.log("question",keysArray.length);
 
@@ -421,7 +421,10 @@ app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
     
       // const myTimeout = setTimeout(()=>{console.log('done')}, 5000);
 console.log("-------------------------------");
-        res.json(qqqq);
+        res.json({
+          quiz_performer: findOneQuiz.quiz_performer,
+          questions: qqqq,
+        });
      } catch (error) {
   console.error(error);
 }
