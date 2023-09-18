@@ -359,6 +359,12 @@ Quiz.create(newQuizData)
 
 
 });
+
+app.get("/getAllChallengerByQuizId/:quiz_uid",async(req,res)=>{
+  const quiz_uid = req.params.quiz_uid;
+  const allChallenge = await Challenge.findAll({ where: {quiz_uid} });
+res.send(allChallenge);
+});
 app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
  const quiz_uid = req.params.quiz_uid;
  try {
