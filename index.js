@@ -722,6 +722,8 @@ app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next
     // req.body.Options = JSON.parse(req.body.Options);
     // console.log(JSON.parse(req.body.question));
     // console.log(req.body.Options);
+    console.log(req.body);
+    // console.log(req.files)
     const question = await Question.create(JSON.parse(req.body.question));
 
     if (!req.files || Object.keys(req.files).length === 0) {
