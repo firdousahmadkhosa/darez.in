@@ -825,6 +825,7 @@ app.get("/getAllQuiz",checkAuthorization, async (req, res) => {
       "quiz_view",
       // [Sequelize.fn("SUM", Sequelize.col("quiz_view")), "total_quiz_view"], // Calculate the sum of quiz_view
     ],
+    limit:60
   });
   let total_View=0;
   allQuizs.forEach(element => {
@@ -1107,6 +1108,30 @@ if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(500).json({ message: "Internal Server Error" });
     }
 }
+});
+
+app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
+  try {
+    // Find the parent by ID and include its associated children
+    const parent = await Challenge.findAll(
+      { where: { quiz_uid: req.params.quiz_uid } },
+      {
+        include: [Challenge],
+      }
+    );
+
+    if (!parent) {
+      return res.status(404).json({ error: "Parent not found" });
+    }
+
+    // Delete the parent and its associated children
+    await parent.destroy();
+
+    res.status(204).send(); // Respond with a 204 No Content status
+  } catch (error) {
+    console.error("Error deleting parent and children:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 
