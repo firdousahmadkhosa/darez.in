@@ -812,10 +812,31 @@ app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next
   }
 });
 
-app.get("/getAllQuiz", async (req, res) => {
-  const allQuizs = await Quiz.findAll();
+app.get("/getAllQuiz",checkAuthorization, async (req, res) => {
+
+  const totalQuestion = await Question.findAll();
+
+
+  const allQuizs = await Quiz.findAll({
+    attributes: [
+      "quiz_id",
+      "quiz_uid",
+      "quiz_performer",
+      "quiz_view",
+      // [Sequelize.fn("SUM", Sequelize.col("quiz_view")), "total_quiz_view"], // Calculate the sum of quiz_view
+    ],
+  });
+  let total_View=0;
+  allQuizs.forEach(element => {
+    total_View=total_View+element.quiz_view
+  });
   // console.log(allChallenges);
-  res.send(allQuizs);
+  res.send({
+    totalQuestions: totalQuestion.length,
+    totalQuiz: allQuizs.length,
+    totalView:total_View,
+    allQuizs:allQuizs,
+  });
 });
 
 app.post("/login", async (req, res,next) => {
