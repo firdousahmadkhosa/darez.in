@@ -365,8 +365,11 @@ Quiz.create(newQuizData)
 
 app.get("/getAllChallengerByQuizId/:quiz_uid",async(req,res)=>{
   const quiz_uid = req.params.quiz_uid;
+  const quiz = await Quiz.findOne({ where: { quiz_uid } });
+  // console.log(quiz);
+
   const allChallenge = await Challenge.findAll({ where: {quiz_uid} });
-res.send(allChallenge);
+res.send({ quiz_owner: quiz.quiz_performer, quiz_performer: allChallenge });
 });
 app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
  const quiz_uid = req.params.quiz_uid;
@@ -807,6 +810,12 @@ app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next
     console.error("Error create questions :", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
+});
+
+app.get("/getAllQuiz", async (req, res) => {
+  const allQuizs = await Quiz.findAll();
+  // console.log(allChallenges);
+  res.send(allQuizs);
 });
 
 app.post("/login", async (req, res,next) => {
