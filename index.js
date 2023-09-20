@@ -127,30 +127,7 @@ const Admin = sequelize.define(
   }
 );
 
-// Define the Answer model
-const Answer = sequelize.define(
-  "Answer",
-  {
-    a_id: {
-      type: DataTypes.BIGINT,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    q_id: {
-      type: DataTypes.BIGINT,
-    },
-    a_text: {
-      type: DataTypes.STRING(255),
-    },
-    a_thumb: {
-      type: DataTypes.STRING(255),
-    },
-  },
-  {
-    tableName: "answer",
-    timestamps: false, // Disable timestamps
-  }
-);
+
 
 // Define the Challenge model
 const Challenge = sequelize.define(
@@ -191,6 +168,7 @@ const Question = sequelize.define(
     },
     q_ctitle: {
       type: DataTypes.TEXT,
+      defaultValue: "",
     },
     q_status: {
       type: DataTypes.INTEGER,
@@ -199,6 +177,31 @@ const Question = sequelize.define(
   },
   {
     tableName: "question",
+    timestamps: false, // Disable timestamps
+  }
+);
+
+// Define the Answer model
+const Answer = sequelize.define(
+  "Answer",
+  {
+    a_id: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    q_id: {
+      type: DataTypes.BIGINT,
+    },
+    a_text: {
+      type: DataTypes.STRING(255),
+    },
+    a_thumb: {
+      type: DataTypes.STRING(255),
+    },
+  },
+  {
+    tableName: "answer",
     timestamps: false, // Disable timestamps
   }
 );
@@ -707,6 +710,97 @@ app.post("/createQuestion", checkAuthorization,async (req, res,next) => {
       }
     );
     return res.send({ message: "Question created successfully" });
+  } catch (error) {
+    console.error("Error create questions :", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next) => {
+  try {
+    // req.body.question = JSON.parse(req.body.question);
+    // req.body.Options = JSON.parse(req.body.Options);
+    // console.log(JSON.parse(req.body.question));
+    // console.log(req.body.Options);
+    const question = await Question.create(JSON.parse(req.body.question));
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.send({ message: "Question created successfully" });
+      try {
+        await Answer.create(
+          {
+            a_text: req.body.a_text,
+          },
+          {
+            where: { a_id: req.params.a_id },
+          }
+        );
+
+        return res.send({ message: "Answer updated successfully" });
+      } catch (error) {
+        console.error("Error updating Answer with answers:", error);
+        throw error;
+      }
+    } else {
+      try {
+        // Check if the uploaded files are in an array
+        if (Array.isArray(req.files.img)) {
+          const filesUrls = [];
+          const OptionList = [];
+          for (let i = 0; i < req.files.img.length; i++) {
+            const path_file = "./public/";
+            const fileOne = "img" + Date.now() + req.files.img[i].name;
+            //-----------------move profile into server-------------------------------//
+            await req.files.img[i].mv(
+              path_file + "" + fileOne,
+              async function (err) {
+                if (err) console.log("error occured");
+              }
+            );
+            filesUrls.push(fileOne);
+          }
+
+          for (let i = 0; i < req.body.Options.length; i++) {
+            OptionList.push({
+              q_id: question.q_id,
+              a_text: JSON.parse(req.body.Options[i]).a_text,
+              a_thumb: "/" + OptionList[i],
+            });
+          }
+          await Answer.bulkCreate(OptionList);
+          return res
+            .status(200)
+            .send("Question with Answers created successfully");
+        } else
+          req
+            .checkBody("img", "picture must have needed animage")
+            .isImage(req.files.img.name);
+        const errors = req.validationErrors();
+        if (errors) {
+          return res.status(200).send({
+            status: 400,
+            error: errors,
+          });
+        }
+        const path_file = "./public/";
+        const fileOne = "img" + Date.now() + req.files.img.name;
+        //-----------------move profile into server-------------------------------//
+        await req.files.img.mv(path_file + "" + fileOne, async function (err) {
+          if (err) console.log("error occured");
+        });
+
+        await Answer.create({
+          q_id: question.q_id,
+          a_text: req.body.Options[0].a_text,
+          a_thumb: "/" + fileOne,
+        });
+
+        return res.send({ message: "Answer created successfully" });
+      } catch (error) {
+        console.error("Error fetching questions with answers:", error);
+        throw error;
+      }
+    }
   } catch (error) {
     console.error("Error create questions :", error);
     return res.status(500).json({ message: "Internal Server Error" });
