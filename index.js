@@ -1125,11 +1125,11 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
     // Delete the parent and its associated children
     await parent.destroy();
 
-     const challenges = await Challenge.findOne({
+     const challenges = await Challenge.findAll({
        where: { quiz_uid: req.params.quiz_uid },
      });
 
-         await challenges.destroy();
+     if (challenges.length>0){ await challenges.destroy();}
 
     res.status(200).send("Quiz deleted successfuly"); // Respond with a 204 No Content status
   } catch (error) {
