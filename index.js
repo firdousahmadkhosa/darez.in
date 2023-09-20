@@ -1113,11 +1113,9 @@ if (!req.files || Object.keys(req.files).length === 0) {
 app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
   try {
     // Find the parent by ID and include its associated children
-    const parent = await Challenge.findAll(
+    const parent = await Quiz.findOne(
       { where: { quiz_uid: req.params.quiz_uid } },
-      {
-        include: [Challenge],
-      }
+     
     );
 
     if (!parent) {
@@ -1127,7 +1125,13 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
     // Delete the parent and its associated children
     await parent.destroy();
 
-    res.status(204).send(); // Respond with a 204 No Content status
+     const challenges = await Challenge.findOne({
+       where: { quiz_uid: req.params.quiz_uid },
+     });
+
+         await challenges.destroy();
+
+    res.status(200).send("Quiz deleted successfuly"); // Respond with a 204 No Content status
   } catch (error) {
     console.error("Error deleting parent and children:", error);
     res.status(500).json({ error: "Internal server error" });
