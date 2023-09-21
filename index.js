@@ -64,9 +64,9 @@ app.use(
 
 
 const sequelize = new Sequelize(
-  dbConfig.DB||"friendshipdares",
-  dbConfig.USER||"new_username",
-  dbConfig.PASSWORD||"MyP@ssw0rd2023",
+  "friendshipdares",
+  "new_username",
+  "MyP@ssw0rd2023",
   {
     host: "localhost",
     dialect: "mysql",
