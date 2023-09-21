@@ -18,7 +18,7 @@ const corsOptions = {
 
 app.use(express.static(path.join(__dirname, "/public/")));
 
-// app.use(express.static(path.join(__dirname,"/build/")));
+app.use(express.static(path.join(__dirname,"/build/")));
 
 // express validater middelware
 app.use(
@@ -330,21 +330,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //simple route
 
-app.get("/", async (req, res,next) => {
-  console.log("hello from backend")
-    return res.send("hello from backend");
+// app.get("/", async (req, res,next) => {
+//   console.log("hello from backend")
+//     return res.send("hello from backend");
  
-});
+// });
 
 // app.get('/',async (req,res)=>{
 //   console.log("hello firdous")
 // 	// res.sendFile(path.join(__dirname,"/client/build/static/",'index.html'));
 // });
 
-// app.get("/", (req, res) => {
-//   console.log("hello firdous");
-//   res.sendFile(path.join(__dirname, "build", "index.html"));
-// });
+app.get("/", (req, res) => {
+  console.log("hello firdous");
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 
 app.post("/createQuiz", async (req, res, next) => {
