@@ -64,9 +64,9 @@ app.use(
 
 
 const sequelize = new Sequelize(
-  "friendshipdares",
-  "new_username",
-  "MyP@ssw0rd2023",
+  dbConfig.DB||"friendshipdares",
+  dbConfig.USER||"new_username",
+  dbConfig.PASSWORD||"MyP@ssw0rd2023",
   {
     host: "localhost",
     dialect: "mysql",
@@ -739,8 +739,14 @@ app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next
     // console.log(JSON.parse(req.body.question));
     // console.log(req.body.Options);
     console.log(req.body);
-    // console.log(req.files)
-    const question = await Question.create(JSON.parse(req.body.question));
+    console.log(req.files)
+
+    const q = {
+      q_title: JSON.parse(req.body.question.q_title),
+      q_ctitle: " ",
+      q_status: 1,
+    };
+    const question = await Question.create(q);
 
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.send({ message: "Question created successfully" });
