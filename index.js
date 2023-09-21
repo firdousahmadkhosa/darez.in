@@ -18,6 +18,8 @@ const corsOptions = {
 
 app.use(express.static(path.join(__dirname, "/public/")));
 
+app.use(express.static(path.join(__dirname,"/build/")));
+
 // express validater middelware
 app.use(
   expressValidator({
@@ -328,10 +330,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //simple route
 
-app.get("/", async (req, res,next) => {
-  console.log("hello from backend")
-    return res.send("hello from backend");
+// app.get("/", async (req, res,next) => {
+//   console.log("hello from backend")
+//     return res.send("hello from backend");
  
+// });
+
+// app.get('/',async (req,res)=>{
+//   console.log("hello firdous")
+// 	// res.sendFile(path.join(__dirname,"/client/build/static/",'index.html'));
+// });
+
+app.get("/", (req, res) => {
+  console.log("hello firdous");
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 
@@ -369,7 +381,8 @@ app.get("/getAllChallengerByQuizId/:quiz_uid",async(req,res)=>{
   // console.log(quiz);
 
   const allChallenge = await Challenge.findAll({ where: {quiz_uid} });
-res.send({ quiz_owner: quiz.quiz_performer, quiz_performer: allChallenge });
+  const sites = await Site.findOne();
+res.send({ quiz_owner: quiz.quiz_performer,advertisementURL:sites.site_wishing_web, quiz_performer: allChallenge });
 });
 app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
  const quiz_uid = req.params.quiz_uid;
@@ -1144,7 +1157,7 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
 //   res.json({ message: "Welcome to Turing.com" });
 // });
 // set port, listen for requests
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
