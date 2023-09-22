@@ -844,7 +844,8 @@ app.post(
           const jsonData = {};
 
           for (const key in req.body) {
-            if (body.hasOwnProperty(key)) {
+            if (req.body.hasOwnProperty(key)) {
+              // Use req.body here
               const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
               if (matches) {
                 const optionIndex = matches[1];
@@ -856,7 +857,7 @@ app.post(
                   jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
                 }
 
-                jsonData[optionIndex][field] = body[key];
+                jsonData[optionIndex][field] = req.body[key]; // Use req.body here
               }
             }
           }
@@ -880,64 +881,65 @@ app.post(
         }
       }
 
- const body = req.body;
-  const files = req.files;
+      const body = req.body; // Assign req.body to body
+      const files = req.files;
       // Iterate through the options data and process it
-  for (const key in body) {
-    if (body.hasOwnProperty(key)) {
-      const matches = key.match(/options\[(\d+)\]\[a_text\]/);
-      if (matches) {
-        const optionIndex = matches[1];
-        const aText = body[key];
+      for (const key in body) {
+        if (req.body.hasOwnProperty(key)) {
+          // Use req.body here
+          const matches = key.match(/options\[(\d+)\]\[a_text\]/);
+          if (matches) {
+            const optionIndex = matches[1];
+            const aText = body[key];
 
-        // Check if an image file was uploaded for this option
-        const imageKey = `options[${optionIndex}][a_image]`;
-        if (files && files[imageKey]) {
+            // Check if an image file was uploaded for this option
+            const imageKey = `options[${optionIndex}][a_image]`;
+            if (files && files[imageKey]) {
+              fs.unlink("./public" + req.body[optionIndex].a_thumb, (err) => {
+                if (err) {
+                  console.error("Error occurred while deleting the file:", err);
+                } else {
+                  console.log("File deleted successfully");
+                }
+              });
 
+              const uploadedFile = files[imageKey];
+              const path_file = "./public/";
+              const fileOne = "img" + Date.now() + uploadedFile.name;
 
-        fs.unlink("./public" + body[optionIndex].a_thumb, (err) => {
-        if (err) {
-          console.error("Error occurred while deleting the file:", err);
-        } else {
-          console.log("File deleted successfully");
-        }
-      });
-
-
-          const uploadedFile = files[imageKey];
-
-
-      const path_file = "./public/";
-      const fileOne = "img" + Date.now() +uploadedFile.name;
-
-          uploadedFile.mv(path_file + "" + fileOne, (err) => {
-            if (err) {
-              console.error('Error saving uploaded file:', err);
+              uploadedFile.mv(path_file + "" + fileOne, (err) => {
+                if (err) {
+                  console.error("Error saving uploaded file:", err);
+                } else {
+                  // Update the database with the file path
+                  Answer.update(
+                    { a_text: aText, a_thumb: "/" + fileOne },
+                    { where: { a_id: optionIndex } }
+                  )
+                    .then(() => {
+                      console.log(
+                        `Updated option ${optionIndex} with text and file path`
+                      );
+                    })
+                    .catch((updateError) => {
+                      console.error("Error updating database:", updateError);
+                    });
+                }
+              });
             } else {
-              // Update the database with the file path
-              Answer.update({ a_text: aText, a_thumb:  "/" + fileOne }, { where: { a_id: optionIndex } })
+              // No image uploaded, update the database with a_text
+              Answer.update({ a_text: aText }, { where: { a_id: optionIndex } })
                 .then(() => {
-                  console.log(`Updated option ${optionIndex} with text and file path`);
+                  console.log(`Updated option ${optionIndex} with text`);
                 })
                 .catch((updateError) => {
-                  console.error('Error updating database:', updateError);
+                  console.error("Error updating database:", updateError);
                 });
             }
-          });
-        }
-        else {
-          // No image uploaded, update the database with a_text
-          Answer.update({ a_text: aText }, { where: { a_id: optionIndex } })
-            .then(() => {
-              console.log(`Updated option ${optionIndex} with text`);
-            })
-            .catch((updateError) => {
-              console.error('Error updating database:', updateError);
-            });
+          }
         }
       }
-    }
-  };
+
       return res.status(200).send("Answers updated successfully");
     } catch (error) {
       console.error("Error create questions :", error);
@@ -945,6 +947,7 @@ app.post(
     }
   }
 );
+
 
 app.get("/getAllQuiz", checkAuthorization, async (req, res) => {
   const totalQuestion = await Question.findAll();
