@@ -885,8 +885,8 @@ app.post(
       const files = req.files;
       // Iterate through the options data and process it
       for (const key in body) {
-        if (req.body.hasOwnProperty(key)) {
-          // Use req.body here
+        if (body.hasOwnProperty(key)) {
+          // Use body here
           const matches = key.match(/options\[(\d+)\]\[a_text\]/);
           if (matches) {
             const optionIndex = matches[1];
@@ -895,7 +895,7 @@ app.post(
             // Check if an image file was uploaded for this option
             const imageKey = `options[${optionIndex}][a_image]`;
             if (files && files[imageKey]) {
-              fs.unlink("./public" + req.body[optionIndex].a_thumb, (err) => {
+              fs.unlink("./public" + body[optionIndex].a_thumb, (err) => {
                 if (err) {
                   console.error("Error occurred while deleting the file:", err);
                 } else {
@@ -947,6 +947,7 @@ app.post(
     }
   }
 );
+
 
 
 app.get("/getAllQuiz", checkAuthorization, async (req, res) => {
