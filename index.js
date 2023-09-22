@@ -348,26 +348,30 @@ app.get("/", (req, res) => {
 
 
 app.post("/create",async(req,res)=>{
-   const q_text = req.body.q_text;
+  console.log("body: ",req.body);
 
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).send("No files were uploaded.");
-    }
 
-    const options = [];
+    console.log("files: ", req.files);
+  //  const q_text = req.body.q_text;
 
-    // Loop through uploaded files
-    for (const key of Object.keys(req.files)) {
-      const option = {
-        a_text: req.body[key.replace("a_image", "a_text")], // Get corresponding text input
-        a_image: req.files[key], // Get the file data
-      };
-      options.push(option);
-    }
+  //   if (!req.files || Object.keys(req.files).length === 0) {
+  //     return res.status(400).send("No files were uploaded.");
+  //   }
 
-    // Now you can work with q_text and options as needed
-    console.log("Question Text:", q_text);
-    console.log("Options:", options);
+  //   const options = [];
+
+  //   // Loop through uploaded files
+  //   for (const key of Object.keys(req.files)) {
+  //     const option = {
+  //       a_text: req.body[key.replace("a_image", "a_text")], // Get corresponding text input
+  //       a_image: req.files[key], // Get the file data
+  //     };
+  //     options.push(option);
+  //   }
+
+  //   // Now you can work with q_text and options as needed
+  //   console.log("Question Text:", q_text);
+  //   console.log("Options:", options);
 
     // Respond with a success message or perform other actions
     res.status(200).send("Form data received successfully.");
