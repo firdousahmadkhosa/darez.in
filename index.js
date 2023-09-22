@@ -873,7 +873,7 @@ app.post(
             );
           }
 
-          return res.send({ message: "Answer updated successfully" });
+          return res.send({ message: "Answers updated successfully" });
         } catch (error) {
           console.error("Error updating Answer with answers:", error);
           throw error;
@@ -937,60 +937,8 @@ app.post(
         }
       }
     }
-  }
-      // const jsonData = {};
-
-      // for (const key in req.body) {
-      //   if (body.hasOwnProperty(key)) {
-      //     const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
-      //     if (matches) {
-      //       const optionIndex = matches[1];
-      //       const field = matches[2];
-
-      //       // Initialize the option object if it doesn't exist
-      //       if (!jsonData[optionIndex]) {
-      //         jsonData[optionIndex] = {};
-      //         jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
-      //       }
-
-      //       jsonData[optionIndex][field] = body[key];
-      //     }
-      //   }
-      // }
-      // const result = Object.values(jsonData);
-
-      // // for (const item of result) {
-    
-
-      // // // await Answer.create(
-      // // //   {
-      // // //     a_text: item.a_text,
-      // // //   },
-      // // //   {
-      // // //     where: { a_id: item.a_id },
-      // // //   }
-      // // // );
-      // // }
-
-      // const options = [];
-      // for (const key of Object.keys(req.files)) {
-      //   const path_file = "./public/";
-      //   const fileOne = "img" + Date.now() + req.files[key].name;
-      //   //-----------------move profile into server-------------------------------//
-      //   await req.files[key].mv(path_file + "" + fileOne, async function (err) {
-      //     if (err) console.log("error occured");
-      //   });
-
-      //   // const option = {
-      //   //   q_id: question.q_id,
-      //   //   a_text: req.body[key.replace("a_image", "a_text")],
-      //   //   a_thumb: "/" + fileOne,
-      //   // };
-      //   // options.push(option);
-      // }
-      // await Answer.bulkCreate(options);
-      return res.status(200).send("Question with Answers created successfully");
-        
+  };
+      return res.status(200).send("Answers updated successfully");
     } catch (error) {
       console.error("Error create questions :", error);
       return res.status(500).json({ message: "Internal Server Error" });
