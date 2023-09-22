@@ -11,14 +11,14 @@ const { v4: uuidv4 } = require("uuid");
 const app = express();
 app.use(fileUpload());
 const dbConfig = require("./config/db.config");
-const { Op ,Sequelize, DataTypes } = require("sequelize");
+const { Op, Sequelize, DataTypes } = require("sequelize");
 // const corsOptions = {
 //   origin: "http://localhost:8080",
 // };
 
 app.use(express.static(path.join(__dirname, "/public/")));
 
-app.use(express.static(path.join(__dirname,"/build/")));
+app.use(express.static(path.join(__dirname, "/build/")));
 
 // express validater middelware
 app.use(
@@ -62,7 +62,6 @@ app.use(
 //   dialect: "mysql",
 // });
 
-
 const sequelize = new Sequelize(
   "friendshipdares",
   "new_username",
@@ -76,7 +75,6 @@ const sequelize = new Sequelize(
 sequelize.sync().then(() => {
   console.log("Database synchronized.");
 });
-
 
 // // Fetch all table names
 // async function getAllTableNames() {
@@ -128,8 +126,6 @@ const Admin = sequelize.define(
     timestamps: false, // Disable timestamps
   }
 );
-
-
 
 // Define the Challenge model
 const Challenge = sequelize.define(
@@ -301,15 +297,12 @@ Question.hasMany(Answer, { foreignKey: "q_id" }); // Specify the foreign key nam
 Answer.belongsTo(Question, { foreignKey: "q_id" }); // Specify the foreign key name
 // Define associations between models, e.g., Admin.hasMany(Answer);
 
-Quiz.hasMany(Challenge, { foreignKey: "quiz_uid", });
+Quiz.hasMany(Challenge, { foreignKey: "quiz_uid" });
 Challenge.belongsTo(Quiz, {
   foreignKey: "quiz_uid",
-  
 });
 
-
 // Sync the model with the database
-
 
 // app.use(cors(corsOptions));
 app.use(cors());
@@ -327,13 +320,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Sync the database
 
-
 //simple route
 
 // app.get("/", async (req, res,next) => {
 //   console.log("hello from backend")
 //     return res.send("hello from backend");
- 
+
 // });
 
 // app.get('/',async (req,res)=>{
@@ -346,153 +338,179 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
+app.get("/create", async (req, res) => {
+  const body = {
+    "options[31][a_text]": "Yescvvv",
+    "options[31][a_thumb]":
+      "/img1694848583021313333828_584268356808963_772710849526903833_n.jpg",
+    "options[32][a_text]": "Nodsdf",
+    "options[32][a_thumb]": "IMG_5d5a87ffefb10.jpg",
+  };
+  const jsonData = {};
 
-app.post("/create",async(req,res)=>{
-  console.log("body: ",req.body);
+  for (const key in body) {
+    if (body.hasOwnProperty(key)) {
+      const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
+      if (matches) {
+        const optionIndex = matches[1];
+        const field = matches[2];
 
+        // Initialize the option object if it doesn't exist
+        if (!jsonData[optionIndex]) {
+          jsonData[optionIndex] = {};
+          jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
+        }
 
-    console.log("files: ", req.files);
+        jsonData[optionIndex][field] = body[key];
+      }
+    }
+  }
+  const result = Object.values(jsonData);
+
+  console.log(result);
+
+  // const jsonData = {};
+
+  // console.log("body: ",req.body);
+
+  //   console.log("files: ", req.files);
   //  const q_text = req.body.q_text;
 
   //   if (!req.files || Object.keys(req.files).length === 0) {
   //     return res.status(400).send("No files were uploaded.");
   //   }
 
-  //   const options = [];
+  // const options = [];
 
-  //   // Loop through uploaded files
-  //   for (const key of Object.keys(req.files)) {
-  //     const option = {
-  //       a_text: req.body[key.replace("a_image", "a_text")], // Get corresponding text input
-  //       a_image: req.files[key], // Get the file data
-  //     };
-  //     options.push(option);
-  //   }
+  // Loop through uploaded files
+  // for (const key of Object.keys(body)) {
+  //   const option = {
+  //     a_text: req.body[key.replace("a_image", "a_text")], // Get corresponding text input
+  //     // a_image: req.files[key], // Get the file data
+  //   };
+  //   options.push(option);
+  // }
 
   //   // Now you can work with q_text and options as needed
   //   console.log("Question Text:", q_text);
-  //   console.log("Options:", options);
+  // console.log("Options:", options);
 
-    // Respond with a success message or perform other actions
-    res.status(200).send("Form data received successfully.");
-})
+  // Respond with a success message or perform other actions
+  res.status(200).send("Form data received successfully.");
+});
 
 app.post("/createQuiz", async (req, res, next) => {
-const { quiz_performer, quiz_data } = req.body;
-const newQuizData = {
-  quiz_uid: uuidv4(),
-  quiz_performer: quiz_performer,
-  quiz_data: JSON.stringify(quiz_data),
-  quiz_view: 0,
-  quiz_hash: Date.now(),
-};
+  const { quiz_performer, quiz_data } = req.body;
+  const newQuizData = {
+    quiz_uid: uuidv4(),
+    quiz_performer: quiz_performer,
+    quiz_data: JSON.stringify(quiz_data),
+    quiz_view: 0,
+    quiz_hash: Date.now(),
+  };
 
-Quiz.create(newQuizData)
-  .then((quiz) => {
+  Quiz.create(newQuizData)
+    .then((quiz) => {
       return res.send({
         status: 200,
         message: "Quiz created successfully",
         newQuizData,
       });
-    console.log("Quiz saved:", quiz.toJSON());
-  })
-  .catch((error) => {
-  
-    console.error("Error saving quiz:", error);
-    throw error;
-  });
-
-
+      console.log("Quiz saved:", quiz.toJSON());
+    })
+    .catch((error) => {
+      console.error("Error saving quiz:", error);
+      throw error;
+    });
 });
 
-app.get("/getAllChallengerByQuizId/:quiz_uid",async(req,res)=>{
+app.get("/getAllChallengerByQuizId/:quiz_uid", async (req, res) => {
   const quiz_uid = req.params.quiz_uid;
   const quiz = await Quiz.findOne({ where: { quiz_uid } });
   // console.log(quiz);
 
-  const allChallenge = await Challenge.findAll({ where: {quiz_uid} });
+  const allChallenge = await Challenge.findAll({ where: { quiz_uid } });
   const sites = await Site.findOne();
-res.send({ quiz_owner: quiz.quiz_performer,advertisementURL:sites.site_wishing_web, quiz_performer: allChallenge });
+  res.send({
+    quiz_owner: quiz.quiz_performer,
+    advertisementURL: sites.site_wishing_web,
+    quiz_performer: allChallenge,
+  });
 });
 app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
- const quiz_uid = req.params.quiz_uid;
- try {
-   const findOneQuiz = await Quiz.findOne({ where: { quiz_uid: quiz_uid } });
-   if (findOneQuiz) {
-     // Quiz with the given quiz_uid was found
-    //  console.log(findOneQuiz);
-  
-     const quiz_data = JSON.parse(findOneQuiz.quiz_data);
-     const keysArray = quiz_data.map((obj) => parseInt(Object.keys(obj)[0]));
-     const answersArray = quiz_data.map((obj) => Object.values(obj)[0]);
-     console.log(quiz_data);
-    // console.log(answersArray);
-    // console.log("question",keysArray.length);
+  const quiz_uid = req.params.quiz_uid;
+  try {
+    const findOneQuiz = await Quiz.findOne({ where: { quiz_uid: quiz_uid } });
+    if (findOneQuiz) {
+      // Quiz with the given quiz_uid was found
+      //  console.log(findOneQuiz);
 
-     try {
-       const questions = await Question.findAll({
-         where: {
-           q_id: {
-             [Op.in]: keysArray,
-           },
-         },
-         include: [Answer],
-       });
+      const quiz_data = JSON.parse(findOneQuiz.quiz_data);
+      const keysArray = quiz_data.map((obj) => parseInt(Object.keys(obj)[0]));
+      const answersArray = quiz_data.map((obj) => Object.values(obj)[0]);
+      console.log(quiz_data);
+      // console.log(answersArray);
+      // console.log("question",keysArray.length);
 
-       let qqqq = [];
-//        // Iterate through the questions array and add the owner_id property from the answer array
-//        questions.forEach((question, i) => {
-//         //  console.log(i);
-//          question.owner_id = answersArray[i];
-// qqqq.push(question);
+      try {
+        const questions = await Question.findAll({
+          where: {
+            q_id: {
+              [Op.in]: keysArray,
+            },
+          },
+          include: [Answer],
+        });
 
-//         //  delete question.q_id; 
-//         //  console.log(question);
-//        });
+        let qqqq = [];
+        //        // Iterate through the questions array and add the owner_id property from the answer array
+        //        questions.forEach((question, i) => {
+        //         //  console.log(i);
+        //          question.owner_id = answersArray[i];
+        // qqqq.push(question);
 
-       for(let i = 0; i<questions.length; ++i){
-      qqqq.push({
-        q_id: questions[i].q_id,
-        q_title: questions[i].q_title,
-        q_ctitle: questions[i].q_ctitle,
-        q_status: questions[i].q_status,
-        Answers: questions[i].Answers,
-        owner_a_id: answersArray[i],
-      });
+        //         //  delete question.q_id;
+        //         //  console.log(question);
+        //        });
 
-        //  qqqq.push({ owner_id: answersArray[i] });
-        //  questions[i].owner_id = answersArray[i];
-       }
+        for (let i = 0; i < questions.length; ++i) {
+          qqqq.push({
+            q_id: questions[i].q_id,
+            q_title: questions[i].q_title,
+            q_ctitle: questions[i].q_ctitle,
+            q_status: questions[i].q_status,
+            Answers: questions[i].Answers,
+            owner_a_id: answersArray[i],
+          });
 
-        
-      //  delete questions[0].q_id;
+          //  qqqq.push({ owner_id: answersArray[i] });
+          //  questions[i].owner_id = answersArray[i];
+        }
 
-   
+        //  delete questions[0].q_id;
 
-      
+        // Now, each question object in the questions array has an owner_id property
+        //  console.log(questions);
 
-       // Now, each question object in the questions array has an owner_id property
-      //  console.log(questions);
-    
-      // const myTimeout = setTimeout(()=>{console.log('done')}, 5000);
-console.log("-------------------------------");
+        // const myTimeout = setTimeout(()=>{console.log('done')}, 5000);
+        console.log("-------------------------------");
         res.json({
           quiz_performer: findOneQuiz.quiz_performer,
           questions: qqqq,
         });
-     } catch (error) {
-  console.error(error);
-}
-     // Return the found quiz as JSON response
-   } else {
-     // Quiz with the given quiz_uid was not found
-     return res.status(404).json({ error: "Quiz not found" });
-   }
- } catch (error) {
-   // Handle any errors that occur during the database query
-   console.error(error);
-   return res.status(500).json({ error: "Internal server error" });
- }
+      } catch (error) {
+        console.error(error);
+      }
+      // Return the found quiz as JSON response
+    } else {
+      // Quiz with the given quiz_uid was not found
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 function calculateScore(array1, array2) {
@@ -509,7 +527,6 @@ function calculateScore(array1, array2) {
     return matchingQuestion ? score + 1 : score;
   }, 0);
 }
-
 
 app.post("/acceptChallenge", async (req, res, next) => {
   const { quiz_uid, c_name, quiz_data } = req.body;
@@ -528,8 +545,8 @@ app.post("/acceptChallenge", async (req, res, next) => {
         c_name: c_name,
       };
 
-      findOneQuiz.quiz_view = findOneQuiz.quiz_view+1;
-        await findOneQuiz.save();
+      findOneQuiz.quiz_view = findOneQuiz.quiz_view + 1;
+      await findOneQuiz.save();
 
       Challenge.create(newQuizData)
         .then((quiz) => {
@@ -555,27 +572,22 @@ app.post("/acceptChallenge", async (req, res, next) => {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
-
-
 });
 
-
-app.get("/getQuestionsWithAnswers", async (req, res,next) => {
- try {
-   const questionsWithAnswers = await Question.findAll({
-     include: [Answer],
-     limit: 20, // Limit the number of records to 20
-   });
-   return res.send(questionsWithAnswers);
- } catch (error) {
-   console.error("Error fetching questions with answers:", error);
-   throw error;
- }
-
+app.get("/getQuestionsWithAnswers", async (req, res, next) => {
+  try {
+    const questionsWithAnswers = await Question.findAll({
+      include: [Answer],
+      limit: 20, // Limit the number of records to 20
+    });
+    return res.send(questionsWithAnswers);
+  } catch (error) {
+    console.error("Error fetching questions with answers:", error);
+    throw error;
+  }
 });
 
-app.get("/getQuestions", async (req, res,next) => {
- 
+app.get("/getQuestions", async (req, res, next) => {
   try {
     const questions = await Question.findAll();
     return res.send(questions);
@@ -585,148 +597,151 @@ app.get("/getQuestions", async (req, res,next) => {
   }
 });
 
-app.get("/getQuestionWithAnswerById/:q_id", checkAuthorization,async (req, res,next) => {
-  // console.log(req.headers);
- 
-  try {
-    const questionWithAnswerById = await Question.findOne({
-      where: { q_id: req.params.q_id },
-      include: [Answer],
-    });
+app.get(
+  "/getQuestionWithAnswerById/:q_id",
+  checkAuthorization,
+  async (req, res, next) => {
+    // console.log(req.headers);
 
-    return res.send(questionWithAnswerById);
-  } catch (error) {
-    console.error("Error fetching questions with answers:", error);
-    throw error;
-  }
-});
-
-app.post("/createAnswerByQuestionId/:q_id",checkAuthorization, async (req, res,next) => {
- 
-  if (!req.files || Object.keys(req.files).length === 0) {
-  return  res.status(400).send("No files were uploaded.");
     try {
-      await Answer.create(
-        {
-          a_text: req.body.a_text,
-        },
-        {
-          where: { a_id: req.params.a_id },
-        }
-      );
-
-      return res.send({ message: "Answer updated successfully" });
-    } catch (error) {
-      console.error("Error updating Answer with answers:", error);
-      throw error;
-    }
-  } else {
-    try {
-      req
-        .checkBody("img", "picture must have needed animage")
-        .isImage(req.files.img.name);
-      const errors = req.validationErrors();
-      if (errors) {
-        return res.status(200).send({
-          status: 400,
-          error: errors,
-        });
-      }
-      const path_file = "./public/";
-      const fileOne = "img" + Date.now() + req.files.img.name;
-      //-----------------move profile into server-------------------------------//
-     await req.files.img.mv(path_file + "" + fileOne, async function (err) {
-        if (err) console.log("error occured");
+      const questionWithAnswerById = await Question.findOne({
+        where: { q_id: req.params.q_id },
+        include: [Answer],
       });
-    
-      await Answer.create(
-        {
-          q_id:req.params.q_id,
-          a_text: req.body.a_text,
-          a_thumb: "/" + fileOne,
-        }
-        
-      );
 
-      return res.send({ message: "Answer created successfully" });
+      return res.send(questionWithAnswerById);
     } catch (error) {
       console.error("Error fetching questions with answers:", error);
       throw error;
     }
   }
-});
+);
 
+app.post(
+  "/createAnswerByQuestionId/:q_id",
+  checkAuthorization,
+  async (req, res, next) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send("No files were uploaded.");
+      try {
+        await Answer.create(
+          {
+            a_text: req.body.a_text,
+          },
+          {
+            where: { a_id: req.params.a_id },
+          }
+        );
 
-app.post("/updateAnswerById/:a_id",checkAuthorization, async (req, res,next) => {
- 
-  if (!req.files || Object.keys(req.files).length === 0) {
-    // res.status(400).send("No files were uploaded.");
-    try {
-      await Answer.update(
-        {
-          a_text: req.body.a_text,
-        },
-        {
-          where: { a_id: req.params.a_id },
-        }
-      );
-
-      return res.send({ message: "Answer updated successfully" });
-    } catch (error) {
-      console.error("Error updating Answer with answers:", error);
-      throw error;
-    }
-  } else {
-    try {
-      req
-        .checkBody("img", "picture must have needed animage")
-        .isImage(req.files.img.name);
-      const errors = req.validationErrors();
-      if (errors) {
-        return res.status(200).send({
-          status: 400,
-          error: errors,
-        });
+        return res.send({ message: "Answer updated successfully" });
+      } catch (error) {
+        console.error("Error updating Answer with answers:", error);
+        throw error;
       }
-      const path_file = "./public/";
-      const fileOne = "img" + Date.now() + req.files.img.name;
-      //-----------------move profile into server-------------------------------//
-      req.files.img.mv(path_file + "" + fileOne, function (err) {
-        if (err) console.log("error occured");
-      });
-      const answerFind = await Answer.findOne({
-        where: { a_id: req.params.a_id },
-      });
+    } else {
+      try {
+        req
+          .checkBody("img", "picture must have needed animage")
+          .isImage(req.files.img.name);
+        const errors = req.validationErrors();
+        if (errors) {
+          return res.status(200).send({
+            status: 400,
+            error: errors,
+          });
+        }
+        const path_file = "./public/";
+        const fileOne = "img" + Date.now() + req.files.img.name;
+        //-----------------move profile into server-------------------------------//
+        await req.files.img.mv(path_file + "" + fileOne, async function (err) {
+          if (err) console.log("error occured");
+        });
 
-     
-       fs.unlink("./public"+answerFind.a_thumb, (err) => {
-         if (err) {
-           console.error("Error occurred while deleting the file:", err);
-         } else {
-           console.log("File deleted successfully");
-         }
-       });
-      await Answer.update(
-        {
+        await Answer.create({
+          q_id: req.params.q_id,
           a_text: req.body.a_text,
           a_thumb: "/" + fileOne,
-        },
-        {
-          where: { a_id: req.params.a_id },
-        }
-      );
+        });
 
-      return res.send({ message: "Answer updated successfully" });
-    } catch (error) {
-      console.error("Error fetching questions with answers:", error);
-      throw error;
+        return res.send({ message: "Answer created successfully" });
+      } catch (error) {
+        console.error("Error fetching questions with answers:", error);
+        throw error;
+      }
     }
   }
-});
+);
 
+app.post(
+  "/updateAnswerById/:a_id",
+  checkAuthorization,
+  async (req, res, next) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      // res.status(400).send("No files were uploaded.");
+      try {
+        await Answer.update(
+          {
+            a_text: req.body.a_text,
+          },
+          {
+            where: { a_id: req.params.a_id },
+          }
+        );
 
-app.post("/updateQuestion",checkAuthorization, async (req, res,next) => {
- 
+        return res.send({ message: "Answer updated successfully" });
+      } catch (error) {
+        console.error("Error updating Answer with answers:", error);
+        throw error;
+      }
+    } else {
+      try {
+        req
+          .checkBody("img", "picture must have needed animage")
+          .isImage(req.files.img.name);
+        const errors = req.validationErrors();
+        if (errors) {
+          return res.status(200).send({
+            status: 400,
+            error: errors,
+          });
+        }
+        const path_file = "./public/";
+        const fileOne = "img" + Date.now() + req.files.img.name;
+        //-----------------move profile into server-------------------------------//
+        req.files.img.mv(path_file + "" + fileOne, function (err) {
+          if (err) console.log("error occured");
+        });
+        const answerFind = await Answer.findOne({
+          where: { a_id: req.params.a_id },
+        });
+
+        fs.unlink("./public" + answerFind.a_thumb, (err) => {
+          if (err) {
+            console.error("Error occurred while deleting the file:", err);
+          } else {
+            console.log("File deleted successfully");
+          }
+        });
+        await Answer.update(
+          {
+            a_text: req.body.a_text,
+            a_thumb: "/" + fileOne,
+          },
+          {
+            where: { a_id: req.params.a_id },
+          }
+        );
+
+        return res.send({ message: "Answer updated successfully" });
+      } catch (error) {
+        console.error("Error fetching questions with answers:", error);
+        throw error;
+      }
+    }
+  }
+);
+
+app.post("/updateQuestion", checkAuthorization, async (req, res, next) => {
   try {
     await Question.update(
       {
@@ -745,16 +760,13 @@ app.post("/updateQuestion",checkAuthorization, async (req, res,next) => {
   }
 });
 
-app.post("/createQuestion", checkAuthorization,async (req, res,next) => {
- 
+app.post("/createQuestion", checkAuthorization, async (req, res, next) => {
   try {
-    await Question.create(
-      {
-        q_title: req.body.q_title,
-        q_ctitle: req.body.q_ctitle,
-        q_status: req.body.q_status,
-      }
-    );
+    await Question.create({
+      q_title: req.body.q_title,
+      q_ctitle: req.body.q_ctitle,
+      q_status: req.body.q_status,
+    });
     return res.send({ message: "Question created successfully" });
   } catch (error) {
     console.error("Error create questions :", error);
@@ -762,77 +774,20 @@ app.post("/createQuestion", checkAuthorization,async (req, res,next) => {
   }
 });
 
-app.post("/createQuestionWithAnswers", checkAuthorization,async (req, res, next) => {
-  try {
-    const q = {
-      q_title: req.body.q_text,
-      q_ctitle: " ",
-      q_status: 1,
-    };
-    const question = await Question.create(q);
-
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.send({ message: "Question created successfully" });
-      try {
-        await Answer.create(
-          {
-            a_text: req.body.a_text,
-          },
-          {
-            where: { a_id: req.params.a_id },
-          }
-        );
-
-        return res.send({ message: "Answer updated successfully" });
-      } catch (error) {
-        console.error("Error updating Answer with answers:", error);
-        throw error;
-      }
-    } 
-     const options = [];
-     for (const key of Object.keys(req.files)) {
-
-            const path_file = "./public/";
-            const fileOne = "img" + Date.now() + req.files[key].name;
-            //-----------------move profile into server-------------------------------//
-            await req.files[key].mv(
-              path_file + "" + fileOne,
-              async function (err) {
-                if (err) console.log("error occured");
-              }
-            );
-       const option = {
-         q_id: question.q_id,
-         a_text: req.body[key.replace("a_image", "a_text")],
-         a_thumb: "/" + fileOne,
-       };
-       options.push(option);
-
-        
-     }
-      await Answer.bulkCreate(options);
-      return res.status(200).send("Question with Answers created successfully");
-     
-    
-  } catch (error) {
-    console.error("Error create questions :", error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
-
 app.post(
-  "/updateQuestionWithAnswers",
+  "/createQuestionWithAnswers",
   checkAuthorization,
   async (req, res, next) => {
     try {
-      const question = await Question.update(
-        { q_title: req.body.q_text },
-        { where: { q_id: req.body.q_id } }
-      );
+      const q = {
+        q_title: req.body.q_text,
+        q_ctitle: " ",
+        q_status: 1,
+      };
+      const question = await Question.create(q);
 
       if (!req.files || Object.keys(req.files).length === 0) {
-        return res.send({ message: "Question updated successfully" });
+        return res.send({ message: "Question created successfully" });
         try {
           await Answer.create(
             {
@@ -873,12 +828,178 @@ app.post(
   }
 );
 
+app.post(
+  "/updateQuestionWithAnswers",
+  checkAuthorization,
+  async (req, res, next) => {
+    try {
+      // const question = await Question.update(
+      //   { q_title: req.body.q_text },
+      //   { where: { q_id: req.body.q_id } }
+      // );
+
+      if (!req.files || Object.keys(req.files).length === 0) {
+        // return res.send({ message: "Question updated successfully" });
+        try {
+          const jsonData = {};
+
+          for (const key in req.body) {
+            if (body.hasOwnProperty(key)) {
+              const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
+              if (matches) {
+                const optionIndex = matches[1];
+                const field = matches[2];
+
+                // Initialize the option object if it doesn't exist
+                if (!jsonData[optionIndex]) {
+                  jsonData[optionIndex] = {};
+                  jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
+                }
+
+                jsonData[optionIndex][field] = body[key];
+              }
+            }
+          }
+          const result = Object.values(jsonData);
+
+          for (const item of result) {
+            await Answer.create(
+              {
+                a_text: item.a_text,
+              },
+              {
+                where: { a_id: item.a_id },
+              }
+            );
+          }
+
+          return res.send({ message: "Answer updated successfully" });
+        } catch (error) {
+          console.error("Error updating Answer with answers:", error);
+          throw error;
+        }
+      }
+
+ const body = req.body;
+  const files = req.files;
+      // Iterate through the options data and process it
+  for (const key in body) {
+    if (body.hasOwnProperty(key)) {
+      const matches = key.match(/options\[(\d+)\]\[a_text\]/);
+      if (matches) {
+        const optionIndex = matches[1];
+        const aText = body[key];
+
+        // Check if an image file was uploaded for this option
+        const imageKey = `options[${optionIndex}][a_image]`;
+        if (files && files[imageKey]) {
 
 
-app.get("/getAllQuiz",checkAuthorization, async (req, res) => {
+        fs.unlink("./public" + body[optionIndex].a_thumb, (err) => {
+        if (err) {
+          console.error("Error occurred while deleting the file:", err);
+        } else {
+          console.log("File deleted successfully");
+        }
+      });
 
+
+          const uploadedFile = files[imageKey];
+
+
+      const path_file = "./public/";
+      const fileOne = "img" + Date.now() +uploadedFile.name;
+
+          uploadedFile.mv(path_file + "" + fileOne, (err) => {
+            if (err) {
+              console.error('Error saving uploaded file:', err);
+            } else {
+              // Update the database with the file path
+              Answer.update({ a_text: aText, a_thumb:  "/" + fileOne }, { where: { a_id: optionIndex } })
+                .then(() => {
+                  console.log(`Updated option ${optionIndex} with text and file path`);
+                })
+                .catch((updateError) => {
+                  console.error('Error updating database:', updateError);
+                });
+            }
+          });
+        }
+        else {
+          // No image uploaded, update the database with a_text
+          Answer.update({ a_text: aText }, { where: { a_id: optionIndex } })
+            .then(() => {
+              console.log(`Updated option ${optionIndex} with text`);
+            })
+            .catch((updateError) => {
+              console.error('Error updating database:', updateError);
+            });
+        }
+      }
+    }
+  }
+      // const jsonData = {};
+
+      // for (const key in req.body) {
+      //   if (body.hasOwnProperty(key)) {
+      //     const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
+      //     if (matches) {
+      //       const optionIndex = matches[1];
+      //       const field = matches[2];
+
+      //       // Initialize the option object if it doesn't exist
+      //       if (!jsonData[optionIndex]) {
+      //         jsonData[optionIndex] = {};
+      //         jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
+      //       }
+
+      //       jsonData[optionIndex][field] = body[key];
+      //     }
+      //   }
+      // }
+      // const result = Object.values(jsonData);
+
+      // // for (const item of result) {
+    
+
+      // // // await Answer.create(
+      // // //   {
+      // // //     a_text: item.a_text,
+      // // //   },
+      // // //   {
+      // // //     where: { a_id: item.a_id },
+      // // //   }
+      // // // );
+      // // }
+
+      // const options = [];
+      // for (const key of Object.keys(req.files)) {
+      //   const path_file = "./public/";
+      //   const fileOne = "img" + Date.now() + req.files[key].name;
+      //   //-----------------move profile into server-------------------------------//
+      //   await req.files[key].mv(path_file + "" + fileOne, async function (err) {
+      //     if (err) console.log("error occured");
+      //   });
+
+      //   // const option = {
+      //   //   q_id: question.q_id,
+      //   //   a_text: req.body[key.replace("a_image", "a_text")],
+      //   //   a_thumb: "/" + fileOne,
+      //   // };
+      //   // options.push(option);
+      // }
+      // await Answer.bulkCreate(options);
+      return res.status(200).send("Question with Answers created successfully");
+        
+    } catch (error) {
+      console.error("Error create questions :", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+app.get("/getAllQuiz", checkAuthorization, async (req, res) => {
   const totalQuestion = await Question.findAll();
-
 
   const allQuizs = await Quiz.findAll({
     attributes: [
@@ -888,22 +1009,22 @@ app.get("/getAllQuiz",checkAuthorization, async (req, res) => {
       "quiz_view",
       // [Sequelize.fn("SUM", Sequelize.col("quiz_view")), "total_quiz_view"], // Calculate the sum of quiz_view
     ],
-    limit:60
+    limit: 60,
   });
-  let total_View=0;
-  allQuizs.forEach(element => {
-    total_View=total_View+element.quiz_view
+  let total_View = 0;
+  allQuizs.forEach((element) => {
+    total_View = total_View + element.quiz_view;
   });
   // console.log(allChallenges);
   res.send({
     totalQuestions: totalQuestion.length,
     totalQuiz: allQuizs.length,
-    totalView:total_View,
-    allQuizs:allQuizs,
+    totalView: total_View,
+    allQuizs: allQuizs,
   });
 });
 
-app.post("/login", async (req, res,next) => {
+app.post("/login", async (req, res, next) => {
   if (
     req.body.username !== null ||
     req.body.username !== "" ||
@@ -953,7 +1074,6 @@ app.post("/login", async (req, res,next) => {
   }
 });
 
-
 // Function to verify the JWT token asynchronously.
 async function verifyToken(token) {
   return new Promise((resolve, reject) => {
@@ -967,8 +1087,6 @@ async function verifyToken(token) {
   });
 }
 
-
-
 // Step 1: Create an async middleware function to check the authorization token.
 async function checkAuthorization(req, res, next) {
   // Extract the token from the request headers or query parameters, depending on your setup.
@@ -980,12 +1098,12 @@ async function checkAuthorization(req, res, next) {
 
     // Attach the decoded user information to the request for later use.
     // req.user = decodedToken;
-      req.body.userId = decodedToken.id;
+    req.body.userId = decodedToken.id;
 
     next(); // Continue to the next middleware or route handler.
   } catch (error) {
     // If the token is invalid or has expired, respond with an unauthorized status code (401).
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: "Unauthorized" });
   }
 }
 
@@ -1014,8 +1132,7 @@ async function checkAuthorization(req, res, next) {
 //   });
 // };
 
-app.post("/updateAdmin", checkAuthorization, async (req, res,next) => {
- 
+app.post("/updateAdmin", checkAuthorization, async (req, res, next) => {
   if (
     req.body.username !== null ||
     req.body.username !== "" ||
@@ -1044,7 +1161,7 @@ app.post("/updateAdmin", checkAuthorization, async (req, res,next) => {
   }
 });
 
-app.get("/getSite", async (req, res,next) => {
+app.get("/getSite", async (req, res, next) => {
   //
 
   try {
@@ -1056,29 +1173,11 @@ app.get("/getSite", async (req, res,next) => {
   }
 });
 
-app.post("/updateSite",checkAuthorization, async (req, res,next) => {
- 
-if (!req.files || Object.keys(req.files).length === 0) {
-  try {
-    const {
-      id,
-      site_title,
-      site_short_title,
-      site_wishing_web,
-      site_description,
-      site_og_image,
-      site_user_can_del,
-      site_about,
-      site_privacy,
-      site_contact,
-      site_custom_header,
-      site_custom_footer,
-      site_ad_ver,
-      site_ad_100,
-    } = req.body;
-
-    await Site.update(
-      {
+app.post("/updateSite", checkAuthorization, async (req, res, next) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    try {
+      const {
+        id,
         site_title,
         site_short_title,
         site_wishing_web,
@@ -1092,51 +1191,68 @@ if (!req.files || Object.keys(req.files).length === 0) {
         site_custom_footer,
         site_ad_ver,
         site_ad_100,
-      },
-      { where: { id: id } }
-    );
-    return res.send({ message: "Site updated successfully" });
-  } catch (error) {
-    console.error("Error updating:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-}else{
+      } = req.body;
+
+      await Site.update(
+        {
+          site_title,
+          site_short_title,
+          site_wishing_web,
+          site_description,
+          site_og_image,
+          site_user_can_del,
+          site_about,
+          site_privacy,
+          site_contact,
+          site_custom_header,
+          site_custom_footer,
+          site_ad_ver,
+          site_ad_100,
+        },
+        { where: { id: id } }
+      );
+      return res.send({ message: "Site updated successfully" });
+    } catch (error) {
+      console.error("Error updating:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  } else {
     try {
-       req
-         .checkBody("img", "picture must have needed animage")
-         .isImage(req.files.site_og_image.name);
-       const errors = req.validationErrors();
-       if (errors) {
-         return res.status(200).send({
-           status: 400,
-           error: errors,
-         });
-       }
-       const path_file = "./public/";
-       const fileOne = "img" + Date.now() + req.files.site_og_image.name;
-       //-----------------move profile into server-------------------------------//
-       req.files.site_og_image.mv(path_file + "" + fileOne, function (err) {
-         if (err) console.log("error occured");
-       });
-
-        const findSite_og_image = await Site.findOne({
-          where: { id: req.body.id },
+      req
+        .checkBody("img", "picture must have needed animage")
+        .isImage(req.files.site_og_image.name);
+      const errors = req.validationErrors();
+      if (errors) {
+        return res.status(200).send({
+          status: 400,
+          error: errors,
         });
+      }
+      const path_file = "./public/";
+      const fileOne = "img" + Date.now() + req.files.site_og_image.name;
+      //-----------------move profile into server-------------------------------//
+      req.files.site_og_image.mv(path_file + "" + fileOne, function (err) {
+        if (err) console.log("error occured");
+      });
 
-        fs.unlink("./public" + findSite_og_image.site_og_image, (err) => {
-          if (err) {
-            console.error("Error occurred while deleting the file:", err);
-          } else {
-            console.log("File deleted successfully");
-          }
-        });
+      const findSite_og_image = await Site.findOne({
+        where: { id: req.body.id },
+      });
+
+      fs.unlink("./public" + findSite_og_image.site_og_image, (err) => {
+        if (err) {
+          console.error("Error occurred while deleting the file:", err);
+        } else {
+          console.log("File deleted successfully");
+        }
+      });
       const {
         id,
         site_title,
         site_short_title,
         site_wishing_web,
         site_description,
-     
+
         site_user_can_del,
         site_about,
         site_privacy,
@@ -1163,23 +1279,22 @@ if (!req.files || Object.keys(req.files).length === 0) {
           site_ad_ver,
           site_ad_100,
         },
-        { where: { id:id} }
+        { where: { id: id } }
       );
       return res.send({ message: "Site updated successfully" });
     } catch (error) {
       console.error("Error updating:", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
-}
+  }
 });
 
 app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
   try {
     // Find the parent by ID and include its associated children
-    const parent = await Quiz.findOne(
-      { where: { quiz_uid: req.params.quiz_uid } },
-     
-    );
+    const parent = await Quiz.findOne({
+      where: { quiz_uid: req.params.quiz_uid },
+    });
 
     if (!parent) {
       return res.status(404).json({ error: "Parent not found" });
@@ -1188,11 +1303,13 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
     // Delete the parent and its associated children
     await parent.destroy();
 
-     const challenges = await Challenge.findAll({
-       where: { quiz_uid: req.params.quiz_uid },
-     });
+    const challenges = await Challenge.findAll({
+      where: { quiz_uid: req.params.quiz_uid },
+    });
 
-     if (challenges.length>0){ await challenges.destroy();}
+    if (challenges.length > 0) {
+      await challenges.destroy();
+    }
 
     res.status(200).send("Quiz deleted successfuly"); // Respond with a 204 No Content status
   } catch (error) {
@@ -1200,8 +1317,6 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to Turing.com" });
