@@ -12,9 +12,9 @@ const app = express();
 app.use(fileUpload());
 const dbConfig = require("./config/db.config");
 const { Op ,Sequelize, DataTypes } = require("sequelize");
-const corsOptions = {
-  origin: "http://localhost:8080",
-};
+// const corsOptions = {
+//   origin: "http://localhost:8080",
+// };
 
 app.use(express.static(path.join(__dirname, "/public/")));
 
@@ -346,6 +346,32 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
+
+app.post("/create",async(req,res)=>{
+   const q_text = req.body.q_text;
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send("No files were uploaded.");
+    }
+
+    const options = [];
+
+    // Loop through uploaded files
+    for (const key of Object.keys(req.files)) {
+      const option = {
+        a_text: req.body[key.replace("a_image", "a_text")], // Get corresponding text input
+        a_image: req.files[key], // Get the file data
+      };
+      options.push(option);
+    }
+
+    // Now you can work with q_text and options as needed
+    console.log("Question Text:", q_text);
+    console.log("Options:", options);
+
+    // Respond with a success message or perform other actions
+    res.status(200).send("Form data received successfully.");
+})
 
 app.post("/createQuiz", async (req, res, next) => {
 const { quiz_performer, quiz_data } = req.body;
@@ -732,17 +758,10 @@ app.post("/createQuestion", checkAuthorization,async (req, res,next) => {
   }
 });
 
-app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next) => {
+app.post("/createQuestionWithAnswers", checkAuthorization,async (req, res, next) => {
   try {
-    // req.body.question = JSON.parse(req.body.question);
-    // req.body.Options = JSON.parse(req.body.Options);
-    // console.log(JSON.parse(req.body.question));
-    // console.log(req.body.Options);
-    console.log(req.body);
-    console.log(req.files)
-
     const q = {
-      q_title: JSON.parse(req.body.question.q_title),
+      q_title: req.body.q_text,
       q_ctitle: " ",
       q_status: 1,
     };
@@ -765,71 +784,92 @@ app.post("/createQuestionWithAnswers", checkAuthorization, async (req, res, next
         console.error("Error updating Answer with answers:", error);
         throw error;
       }
-    } else {
-      try {
-        // Check if the uploaded files are in an array
-        if (Array.isArray(req.files.img)) {
-          const filesUrls = [];
-          const OptionList = [];
-          for (let i = 0; i < req.files.img.length; i++) {
+    } 
+     const options = [];
+     for (const key of Object.keys(req.files)) {
+
             const path_file = "./public/";
-            const fileOne = "img" + Date.now() + req.files.img[i].name;
+            const fileOne = "img" + Date.now() + req.files[key].name;
             //-----------------move profile into server-------------------------------//
-            await req.files.img[i].mv(
+            await req.files[key].mv(
               path_file + "" + fileOne,
               async function (err) {
                 if (err) console.log("error occured");
               }
             );
-            filesUrls.push(fileOne);
-          }
+       const option = {
+         q_id: question.q_id,
+         a_text: req.body[key.replace("a_image", "a_text")],
+         a_thumb: "/" + fileOne,
+       };
+       options.push(option);
 
-          for (let i = 0; i < req.body.Options.length; i++) {
-            OptionList.push({
-              q_id: question.q_id,
-              a_text: JSON.parse(req.body.Options[i]).a_text,
-              a_thumb: "/" + OptionList[i],
-            });
-          }
-          await Answer.bulkCreate(OptionList);
-          return res
-            .status(200)
-            .send("Question with Answers created successfully");
-        } else
-          req
-            .checkBody("img", "picture must have needed animage")
-            .isImage(req.files.img.name);
-        const errors = req.validationErrors();
-        if (errors) {
-          return res.status(200).send({
-            status: 400,
-            error: errors,
-          });
-        }
-        const path_file = "./public/";
-        const fileOne = "img" + Date.now() + req.files.img.name;
-        //-----------------move profile into server-------------------------------//
-        await req.files.img.mv(path_file + "" + fileOne, async function (err) {
-          if (err) console.log("error occured");
-        });
-
-        await Answer.create({
-          q_id: question.q_id,
-          a_text: req.body.Options[0].a_text,
-          a_thumb: "/" + fileOne,
-        });
-
-        return res.send({ message: "Answer created successfully" });
-      } catch (error) {
-        console.error("Error fetching questions with answers:", error);
-        throw error;
-      }
-    }
+        
+     }
+      await Answer.bulkCreate(options);
+      return res.status(200).send("Question with Answers created successfully");
+     
+    
   } catch (error) {
     console.error("Error create questions :", error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+
+app.post(
+  "/updateQuestionWithAnswers",
+  checkAuthorization,
+  async (req, res, next) => {
+    try {
+      const question = await Question.update(
+        { q_title: req.body.q_text },
+        { where: { q_id: req.body.q_id } }
+      );
+
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.send({ message: "Question updated successfully" });
+        try {
+          await Answer.create(
+            {
+              a_text: req.body.a_text,
+            },
+            {
+              where: { a_id: req.params.a_id },
+            }
+          );
+
+          return res.send({ message: "Answer updated successfully" });
+        } catch (error) {
+          console.error("Error updating Answer with answers:", error);
+          throw error;
+        }
+      }
+      const options = [];
+      for (const key of Object.keys(req.files)) {
+        const path_file = "./public/";
+        const fileOne = "img" + Date.now() + req.files[key].name;
+        //-----------------move profile into server-------------------------------//
+        await req.files[key].mv(path_file + "" + fileOne, async function (err) {
+          if (err) console.log("error occured");
+        });
+        const option = {
+          q_id: question.q_id,
+          a_text: req.body[key.replace("a_image", "a_text")],
+          a_thumb: "/" + fileOne,
+        };
+        options.push(option);
+      }
+      await Answer.bulkCreate(options);
+      return res.status(200).send("Question with Answers created successfully");
+    } catch (error) {
+      console.error("Error create questions :", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+
 
 app.get("/getAllQuiz",checkAuthorization, async (req, res) => {
 
