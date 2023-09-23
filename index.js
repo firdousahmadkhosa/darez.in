@@ -337,6 +337,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   console.log("hello firdous");
 //   res.sendFile(path.join(__dirname, "build/", "index.html"));
 // });
+// Have Node serve the files for our built React app
+app.use(express.static(path.resolve(__dirname, './build')));
+
+
+// app.get("/", (req, res) => {
+//   res.sendFile(path.join(__dirname, "build", "index.html"));
+// });
+
+// All other GET requests not handled before will return our React app
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, './build', 'index.html'));
+});
+
+
 
 app.post("/create", async (req, res) => {
   const siteDataArray = req.body.SiteData; // Assuming req.body.SiteData is your array of JSON strings
