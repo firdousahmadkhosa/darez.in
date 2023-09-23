@@ -16,7 +16,8 @@ const { Op, Sequelize, DataTypes } = require("sequelize");
 //   origin: "http://localhost:8080",
 // };
 
-// app.use(express.static(path.join(__dirname, "/public/")));
+// Serve static files from the "public" directory for image uploads
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 // app.use(express.static(path.join(__dirname, "/build/")));
 
@@ -57,20 +58,20 @@ app.use(
   })
 );
 // Sequelize setup
-// const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-//   host: "localhost",
-//   dialect: "mysql",
-// });
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: "localhost",
+  dialect: "mysql",
+});
 
-const sequelize = new Sequelize(
-  "friendshipdares",
-  "new_username",
-  "MyP@ssw0rd2023",
-  {
-    host: "localhost",
-    dialect: "mysql",
-  }
-);
+// const sequelize = new Sequelize(
+//   "friendshipdares",
+//   "new_username",
+//   "MyP@ssw0rd2023",
+//   {
+//     host: "localhost",
+//     dialect: "mysql",
+//   }
+// );
 
 sequelize.sync().then(() => {
   console.log("Database synchronized.");
