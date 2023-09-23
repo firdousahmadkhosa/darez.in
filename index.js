@@ -58,20 +58,20 @@ app.use(
   })
 );
 // Sequelize setup
-const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
-  host: "localhost",
-  dialect: "mysql",
-});
+// const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+//   host: "localhost",
+//   dialect: "mysql",
+// });
 
-// const sequelize = new Sequelize(
-//   "friendshipdares",
-//   "new_username",
-//   "MyP@ssw0rd2023",
-//   {
-//     host: "localhost",
-//     dialect: "mysql",
-//   }
-// );
+const sequelize = new Sequelize(
+  "friendshipdares",
+  "new_username",
+  "MyP@ssw0rd2023",
+  {
+    host: "localhost",
+    dialect: "mysql",
+  }
+);
 
 sequelize.sync().then(() => {
   console.log("Database synchronized.");
