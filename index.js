@@ -1245,29 +1245,33 @@ app.post("/updateSite", checkAuthorization, async (req, res, next) => {
 });
 
 app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
+
   try {
-    // Find the parent by ID and include its associated children
-    const parent = await Quiz.findOne({
+    const challenge = await Challenge.findAll({
       where: { quiz_uid: req.params.quiz_uid },
     });
 
-    if (!parent) {
-      return res.status(404).json({ error: "Parent not found" });
+    if (challenge.length > 0) {
+  
+      await Challenge.destroy({
+        where: { quiz_uid: req.params.quiz_uid }, // Corrected the extra "where" property
+      });
     }
 
-    // Delete the parent and its associated children
-    await parent.destroy();
-
-    const challenges = await Challenge.findAll({
+    const quiz = await Quiz.findOne({
       where: { quiz_uid: req.params.quiz_uid },
     });
 
-    if (challenges.length > 0) {
-      await challenges.destroy();
+    if (!quiz) {
+      return res.status(404).json({ error: "Quiz not found" });
     }
 
-    res.status(200).send("Quiz deleted successfuly"); // Respond with a 204 No Content status
-  } catch (error) {
+    // Delete the question and its associated children
+    await quiz.destroy();
+
+    res.status(200).send("Quiz deleted successfully"); // Respond with a 204 No Content status
+  }
+   catch (error) {
     console.error("Error deleting parent and children:", error);
     res.status(500).json({ error: "Internal server error" });
   }
