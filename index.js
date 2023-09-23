@@ -18,7 +18,7 @@ const { Op, Sequelize, DataTypes } = require("sequelize");
 
 app.use(express.static(path.join(__dirname, "/public/")));
 
-app.use(express.static(path.join(__dirname, "/build/")));
+// app.use(express.static(path.join(__dirname, "/build/")));
 
 // express validater middelware
 app.use(
@@ -333,12 +333,26 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // 	// res.sendFile(path.join(__dirname,"/client/build/static/",'index.html'));
 // });
 
-app.get("/", (req, res) => {
-  console.log("hello firdous");
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
+// app.get("/", (req, res) => {
+//   console.log("hello firdous");
+//   res.sendFile(path.join(__dirname, "build/", "index.html"));
+// });
 
 app.post("/create", async (req, res) => {
+  const siteDataArray = req.body.SiteData; // Assuming req.body.SiteData is your array of JSON strings
+
+  console.log(JSON.parse(siteDataArray));
+  // const parsedSiteData = siteDataArray.map((jsonString) => {
+  //   try {
+  //     return JSON.parse(jsonString);
+  //   } catch (error) {
+  //     console.error("Error parsing JSON:", error);
+  //     return null; // Handle the error as needed
+  //   }
+  // });
+
+  // console.log(parsedSiteData); // An array of JavaScript objects
+
   // const body = {
   //   "options[31][a_text]": "Yescvvv",
   //   "options[31][a_thumb]":
@@ -368,12 +382,12 @@ app.post("/create", async (req, res) => {
   // const result = Object.values(jsonData);
 
   // console.log(result);
-
+  // console.log(req.body.SiteData);
   // // const jsonData = {};
+  // const data = JSON.parse(req.body.SiteData);
+  // console.log(JSON.parse(data));
 
-  console.log("body: ",req.body);
-
-    console.log("files: ", req.files);
+  // console.log("files: ", req.files);
   //  const q_text = req.body.q_text;
 
   //   if (!req.files || Object.keys(req.files).length === 0) {
@@ -1138,7 +1152,7 @@ app.post("/updateSite", checkAuthorization, async (req, res, next) => {
 
   delete req.body.SiteData;
   req.body = body;
-  console.log( body);
+  // console.log( body);
   if (!req.files || Object.keys(req.files).length === 0) {
     try {
       const {
