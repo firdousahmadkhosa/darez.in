@@ -338,42 +338,42 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-app.get("/create", async (req, res) => {
-  const body = {
-    "options[31][a_text]": "Yescvvv",
-    "options[31][a_thumb]":
-      "/img1694848583021313333828_584268356808963_772710849526903833_n.jpg",
-    "options[32][a_text]": "Nodsdf",
-    "options[32][a_thumb]": "IMG_5d5a87ffefb10.jpg",
-  };
-  const jsonData = {};
-
-  for (const key in body) {
-    if (body.hasOwnProperty(key)) {
-      const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
-      if (matches) {
-        const optionIndex = matches[1];
-        const field = matches[2];
-
-        // Initialize the option object if it doesn't exist
-        if (!jsonData[optionIndex]) {
-          jsonData[optionIndex] = {};
-          jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
-        }
-
-        jsonData[optionIndex][field] = body[key];
-      }
-    }
-  }
-  const result = Object.values(jsonData);
-
-  console.log(result);
-
+app.post("/create", async (req, res) => {
+  // const body = {
+  //   "options[31][a_text]": "Yescvvv",
+  //   "options[31][a_thumb]":
+  //     "/img1694848583021313333828_584268356808963_772710849526903833_n.jpg",
+  //   "options[32][a_text]": "Nodsdf",
+  //   "options[32][a_thumb]": "IMG_5d5a87ffefb10.jpg",
+  // };
   // const jsonData = {};
 
-  // console.log("body: ",req.body);
+  // for (const key in body) {
+  //   if (body.hasOwnProperty(key)) {
+  //     const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
+  //     if (matches) {
+  //       const optionIndex = matches[1];
+  //       const field = matches[2];
 
-  //   console.log("files: ", req.files);
+  //       // Initialize the option object if it doesn't exist
+  //       if (!jsonData[optionIndex]) {
+  //         jsonData[optionIndex] = {};
+  //         jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
+  //       }
+
+  //       jsonData[optionIndex][field] = body[key];
+  //     }
+  //   }
+  // }
+  // const result = Object.values(jsonData);
+
+  // console.log(result);
+
+  // // const jsonData = {};
+
+  console.log("body: ",req.body);
+
+    console.log("files: ", req.files);
   //  const q_text = req.body.q_text;
 
   //   if (!req.files || Object.keys(req.files).length === 0) {
