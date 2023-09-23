@@ -16,7 +16,7 @@ const { Op, Sequelize, DataTypes } = require("sequelize");
 //   origin: "http://localhost:8080",
 // };
 
-app.use(express.static(path.join(__dirname, "/public/")));
+// app.use(express.static(path.join(__dirname, "/public/")));
 
 // app.use(express.static(path.join(__dirname, "/build/")));
 
@@ -337,8 +337,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   console.log("hello firdous");
 //   res.sendFile(path.join(__dirname, "build/", "index.html"));
 // });
-// Have Node serve the files for our built React app
-app.use(express.static(path.resolve(__dirname, './build')));
+app.use(express.static(path.join(__dirname, "build")));
 
 
 // app.get("/", (req, res) => {
@@ -1361,11 +1360,17 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
 });
 
 
+app.get("/*", function (req, res) {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to Turing.com" });
 // });
 // set port, listen for requests
-const PORT = process.env.PORT || ;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+
