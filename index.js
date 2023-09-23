@@ -1133,7 +1133,7 @@ app.get("/getSite", async (req, res, next) => {
 });
 
 app.post("/updateSite", checkAuthorization, async (req, res, next) => {
-  const body = JOSN.parse(req.body.SiteData);
+  const body = JSON.parse(req.body.SiteData);
   delete req.body.SiteData;
   req.body = body;
   if (!req.files || Object.keys(req.files).length === 0) {
