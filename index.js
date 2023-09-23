@@ -964,7 +964,10 @@ app.get("/getAllQuiz", checkAuthorization, async (req, res) => {
       "quiz_view",
       // [Sequelize.fn("SUM", Sequelize.col("quiz_view")), "total_quiz_view"], // Calculate the sum of quiz_view
     ],
-    limit: 60,
+    limit: 100,
+    order: [
+      ["quiz_id", "DESC"], // Replace "createdAt" with the actual timestamp field you want to use
+    ],
   });
   let total_View = 0;
   allQuizs.forEach((element) => {
@@ -1117,7 +1120,8 @@ app.post("/updateAdmin", checkAuthorization, async (req, res, next) => {
 });
 
 app.get("/getSite", async (req, res, next) => {
-  //
+
+  
 
   try {
     const siteInformation = await Site.findAll();
@@ -1129,6 +1133,9 @@ app.get("/getSite", async (req, res, next) => {
 });
 
 app.post("/updateSite", checkAuthorization, async (req, res, next) => {
+  const body = JOSN.parse(req.body.SiteData);
+  delete req.body.SiteData;
+  req.body = body;
   if (!req.files || Object.keys(req.files).length === 0) {
     try {
       const {
@@ -1175,7 +1182,7 @@ app.post("/updateSite", checkAuthorization, async (req, res, next) => {
     try {
       req
         .checkBody("img", "picture must have needed animage")
-        .isImage(req.files.site_og_image.name);
+        .isImage(req.files.img.name);
       const errors = req.validationErrors();
       if (errors) {
         return res.status(200).send({
@@ -1184,17 +1191,17 @@ app.post("/updateSite", checkAuthorization, async (req, res, next) => {
         });
       }
       const path_file = "./public/";
-      const fileOne = "img" + Date.now() + req.files.site_og_image.name;
+      const fileOne = "img" + Date.now() + req.files.img.name;
       //-----------------move profile into server-------------------------------//
-      req.files.site_og_image.mv(path_file + "" + fileOne, function (err) {
+      req.files.img.mv(path_file + "" + fileOne, function (err) {
         if (err) console.log("error occured");
       });
 
-      const findSite_og_image = await Site.findOne({
-        where: { id: req.body.id },
-      });
+      // const findSite_og_image = await Site.findOne({
+      //   where: { id: req.body.id },
+      // });
 
-      fs.unlink("./public" + findSite_og_image.site_og_image, (err) => {
+      fs.unlink("./public" + req.body.site_og_image, (err) => {
         if (err) {
           console.error("Error occurred while deleting the file:", err);
         } else {
