@@ -17,7 +17,7 @@ const { Op, Sequelize, DataTypes } = require("sequelize");
 // };
 
 // Serve static files from the "public" directory for image uploads
-app.use("/public", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // app.use(express.static(path.join(__dirname, "/build/")));
 
@@ -338,7 +338,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   console.log("hello firdous");
 //   res.sendFile(path.join(__dirname, "build/", "index.html"));
 // });
-app.use(express.static(path.join(__dirname, "build")));
+
 
 
 // app.get("/", (req, res) => {
@@ -1360,7 +1360,7 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
   }
 });
 
-
+app.use(express.static(path.join(__dirname, "/public/build")));
 app.get("/*", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
