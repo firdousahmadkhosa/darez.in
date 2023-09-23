@@ -844,27 +844,25 @@ app.post(
           const jsonData = {};
 
           for (const key in req.body) {
-            if (req.body.hasOwnProperty(key)) {
-              // Use req.body here
-              const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
-              if (matches) {
-                const optionIndex = matches[1];
-                const field = matches[2];
+            // Use req.body here
+            const matches = key.match(/\[(\d+)\]\[(\w+)\]/);
+            if (matches) {
+              const optionIndex = matches[1];
+              const field = matches[2];
 
-                // Initialize the option object if it doesn't exist
-                if (!jsonData[optionIndex]) {
-                  jsonData[optionIndex] = {};
-                  jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
-                }
-
-                jsonData[optionIndex][field] = req.body[key]; // Use req.body here
+              // Initialize the option object if it doesn't exist
+              if (!jsonData[optionIndex]) {
+                jsonData[optionIndex] = {};
+                jsonData[optionIndex]["a_id"] = optionIndex; // Include option index as a property
               }
+
+              jsonData[optionIndex][field] = req.body[key]; // Use req.body here
             }
           }
           const result = Object.values(jsonData);
 
           for (const item of result) {
-            await Answer.create(
+            await Answer.update(
               {
                 a_text: item.a_text,
               },
@@ -879,15 +877,14 @@ app.post(
           console.error("Error updating Answer with answers:", error);
           throw error;
         }
-      }
-
-      const body = req.body; // Assign req.body to body
-      const files = req.files;
-      // Iterate through the options data and process it
-      for (const key in body) {
-        if (body.hasOwnProperty(key)) {
+      } else {
+        const body = req.body; // Assign req.body to body
+        const files = req.files;
+        // Iterate through the options data and process it
+        for (const key in body) {
           // Use body here
           const matches = key.match(/options\[(\d+)\]\[a_text\]/);
+          // const matches = key.match(/options\[(\d+)\]\[a_thumb\]/);
           if (matches) {
             const optionIndex = matches[1];
             const aText = body[key];
@@ -895,13 +892,21 @@ app.post(
             // Check if an image file was uploaded for this option
             const imageKey = `options[${optionIndex}][a_image]`;
             if (files && files[imageKey]) {
-              fs.unlink("./public" + body[optionIndex].a_thumb, (err) => {
-                if (err) {
-                  console.error("Error occurred while deleting the file:", err);
-                } else {
-                  console.log("File deleted successfully");
-                }
-              });
+              if (body[`options[${optionIndex}][a_thumb]`]) {
+                fs.unlink(
+                  "./public" + body[`options[${optionIndex}][a_thumb]`],
+                  (err) => {
+                    if (err) {
+                      console.error(
+                        "Error occurred while deleting the file:",
+                        err
+                      );
+                    } else {
+                      console.log("File deleted successfully");
+                    }
+                  }
+                );
+              }
 
               const uploadedFile = files[imageKey];
               const path_file = "./public/";
@@ -938,17 +943,15 @@ app.post(
             }
           }
         }
-      }
 
-      return res.status(200).send("Answers updated successfully");
+        return res.status(200).send("Answers updated successfully");
+      }
     } catch (error) {
       console.error("Error create questions :", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   }
 );
-
-
 
 app.get("/getAllQuiz", checkAuthorization, async (req, res) => {
   const totalQuestion = await Question.findAll();
@@ -1269,6 +1272,37 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
+  try {
+    const answers = await Answer.findAll({
+      where: { q_id: req.params.q_id },
+    });
+
+    if (answers.length > 0) {
+      await Answer.destroy({
+        where: { q_id: req.params.q_id }, // Corrected the extra "where" property
+      });
+    }
+
+    const question = await Question.findOne({
+      where: { q_id: req.params.q_id },
+    });
+
+    if (!question) {
+      return res.status(404).json({ error: "Question not found" });
+    }
+
+    // Delete the question and its associated children
+    await question.destroy();
+
+    res.status(200).send("Question deleted successfully"); // Respond with a 204 No Content status
+  } catch (error) {
+    console.error("Error deleting question and answers:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to Turing.com" });
