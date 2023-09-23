@@ -1280,6 +1280,21 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
     });
 
     if (answers.length > 0) {
+      for (let i = 0; i < answers.length; i++) {
+         fs.unlink(
+           "./public" +answers[i].a_thumb,
+           (err) => {
+             if (err) {
+               console.error("Error occurred while deleting the file:", err);
+             } else {
+               console.log("File deleted successfully");
+             }
+           }
+         );
+      }
+      
+
+
       await Answer.destroy({
         where: { q_id: req.params.q_id }, // Corrected the extra "where" property
       });
