@@ -1133,9 +1133,12 @@ app.get("/getSite", async (req, res, next) => {
 });
 
 app.post("/updateSite", checkAuthorization, async (req, res, next) => {
+  // console.log(req.body);
   const body = JSON.parse(req.body.SiteData);
+
   delete req.body.SiteData;
   req.body = body;
+  console.log( body);
   if (!req.files || Object.keys(req.files).length === 0) {
     try {
       const {
@@ -1276,7 +1279,7 @@ app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
     // Delete the question and its associated children
     await quiz.destroy();
 
-    res.status(200).send("Quiz deleted successfully"); // Respond with a 204 No Content status
+   return res.status(200).send({message:"Quiz deleted successfully"}); // Respond with a 204 No Content status
   }
    catch (error) {
     console.error("Error deleting parent and children:", error);
