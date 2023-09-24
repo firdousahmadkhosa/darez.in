@@ -10,14 +10,14 @@ const expressValidator = require("express-validator");
 const { v4: uuidv4 } = require("uuid");
 const app = express();
 app.use(fileUpload());
-// const dbConfig = require("./config/db.config");
+const dbConfig = require("./config/db.config");
 const { Op, Sequelize, DataTypes } = require("sequelize");
 // const corsOptions = {
 //   origin: "http://localhost:8080",
 // };
 
-// Serve static files from the "public" directory for image uploads
-app.use( express.static(path.join(__dirname, "public")));
+// Serve static files from the "public" directory (for image uploads, etc.)
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 
 // app.use(express.static(path.join(__dirname, "/build/")));
@@ -351,7 +351,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   res.sendFile(path.resolve(__dirname, './build', 'index.html'));
 // });
 
-
+// Serve React build assets from the "build" directory
+app.use(express.static(path.join(__dirname, "build")));
 
 app.post("/create", async (req, res) => {
   const siteDataArray = req.body.SiteData; // Assuming req.body.SiteData is your array of JSON strings
@@ -1361,11 +1362,10 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
   }
 });
 
-// Serve React build assets from the "build" directory
-app.use(express.static(path.join(__dirname, "build")));
+
 
 // Handle all other routes and serve the React app
-app.get("/*", function (req, res) {
+app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
