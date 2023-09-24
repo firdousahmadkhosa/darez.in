@@ -10,7 +10,7 @@ const expressValidator = require("express-validator");
 const { v4: uuidv4 } = require("uuid");
 const app = express();
 app.use(fileUpload());
-const dbConfig = require("./config/db.config");
+// const dbConfig = require("./config/db.config");
 const { Op, Sequelize, DataTypes } = require("sequelize");
 // const corsOptions = {
 //   origin: "http://localhost:8080",
