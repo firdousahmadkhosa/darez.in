@@ -17,7 +17,8 @@ const { Op, Sequelize, DataTypes } = require("sequelize");
 // };
 
 // Serve static files from the "public" directory for image uploads
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/public", express.static(path.join(__dirname, "public")));
+
 
 // app.use(express.static(path.join(__dirname, "/build/")));
 
@@ -1360,7 +1361,10 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, "/public/build")));
+// Serve React build assets from the "build" directory
+app.use(express.static(path.join(__dirname, "build")));
+
+// Handle all other routes and serve the React app
 app.get("/*", function (req, res) {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
