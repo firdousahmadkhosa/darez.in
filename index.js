@@ -1363,11 +1363,11 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
 
 
 // Serve React build assets from the "build" directory
-app.use(express.static(path.join(__dirname, "build")));
+// app.use(express.static(path.join(__dirname, "build")));
 
 // Handle all other routes and serve the React app
 app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
+  res.sendFile(path.join(__dirname, "public/build", "./index.html"));
 });
 
 // app.get("/", (req, res) => {
