@@ -64,6 +64,8 @@ app.use(
 //   dialect: "mysql",
 // });
 
+
+
 const sequelize = new Sequelize(
   "friendshipdares",
   "new_username",
