@@ -17,7 +17,7 @@ const { Op, Sequelize, DataTypes } = require("sequelize");
 // };
 
 // Serve static files from the "public" directory (for image uploads, etc.)
-app.use( express.static(path.join(__dirname, "/public")));
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 
 // app.use(express.static(path.join(__dirname, "/build/")));
