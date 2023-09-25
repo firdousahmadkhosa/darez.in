@@ -609,7 +609,7 @@ app.get("/getQuestionsWithAnswers", async (req, res, next) => {
   try {
     const questionsWithAnswers = await Question.findAll({
       include: [Answer],
-      limit: 20, // Limit the number of records to 20
+      limit: 30, // Limit the number of records to 20
     });
     return res.send(questionsWithAnswers);
   } catch (error) {
