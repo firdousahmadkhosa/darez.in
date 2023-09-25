@@ -1,4 +1,78 @@
-const body ={
-   SiteData: `{"id":1,"site_title":"Friendship Dare Quiz 2024","site_short_title":"Friendship Dare 2024","site_wishing_web":"https://darez.in/highercpmrevenue.php","site_description":"has *CHALLENGED* %0A \\r\\nYour Friendship 👸🤴 %0A\\r\\nTake this Challenge NOW %0A\\r\\nTouch This Blue Line %0A\\r\\n🤯👇👇👇👇🤯\\t%0A","site_og_image":"IMG_64400db5c2607.png","site_user_can_del":1,"site_about":"These types of games are a great hit on Whatsapp. It is a real fun and its craze can be seen on WhatsApp. It is the best way by which you can judge a person’s character. Every dare message has options whose answers are known to you beforehand. You can send this dare message to your friends and ask them to choose one option. After they choose one option, just send them answers and your friend has to do accordingly.","site_privacy":"<p>At %WEBSITE%, accessible from %WEBURL%, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by %WEBSITE% and how we use it.</p><h3>Log Files</h3><p>\\t%WEBSITE% follows a standard procedure of using log files. These files log visitors when they visit websites. All hosting companies do this and a part of hosting services' analytics. The information collected by log files include internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any information that is personally identifiable. The purpose of the information is for analyzing trends, administering the site, tracking users' movement on the website, and gathering demographic information.</p><h3>Cookies and Web Beacons</h3><p>\\tLike any other website, %WEBSITE% uses 'cookies'. These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.</p><h3>Google DoubleClick DART Cookie</h3><p>\\tGoogle is one of a third-party vendor on our site. It also uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to www.website.com and other sites on the internet. However, visitors may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at the following URL","site_contact":"If you have any query regarding ideas or suggestions please email us at asmediaapp@gmail.com","site_custom_header":"<!-- Google tag (gtag.js) -->\\r\\n<script async src=\\"https://www.googletagmanager.com/gtag/js?id=UA-206617543-2\\"></script>\\r\\n<script>\\r\\n  window.dataLayer = window.dataLayer || [];\\r\\n  function gtag(){dataLayer.push(arguments);}\\r\\n  gtag('js', new Date());\\r\\n\\r\\n  gtag('config', 'UA-206617543-2');\\r\\n</script>","site_custom_footer":"","site_ad_ver":"","site_ad_100":"","img":{},"site_og_images":"blob:http://localhost:3000/eb8b41e5-de7a-4f64-9b49-55959ebba2e3"}`
+const a =  {
+    "quiz_performer": "dfdfdf",
+    "quiz_data": [
+        {
+            "17": "48"
+        },
+        {
+            "21": "131"
+        },
+        {
+            "22": "61"
+        },
+        {
+            "23": "67"
+        },
+        {
+            "24": "71"
+        },
+        {
+            "25": "76"
+        },
+        {
+            "26": "24"
+        },
+        {
+            "27": "130"
+        },
+        {
+            "28": "100"
+        },
+        {
+            "29": "114"
+        },
+        {
+            "30": "112"
+        },
+        {
+            "31": "109"
+        },
+        {
+            "32": "126"
+        },
+        {
+            "33": "122"
+        },
+        {
+            "34": "80"
+        },
+        {
+            "35": "11"
+        },
+        {
+            "36": "104"
+        },
+        {
+            "18": "52"
+        },
+        {
+            "19": "117"
+        },
+        {
+            "20": "54"
+        }
+    ]
+}
+
+const b = {
+  status: 200,
+  message: "Quiz created successfully",
+  newQuizData: {
+    quiz_uid: "b635a6cd-4532-45f9-84d0-71e8c3006eac",
+    quiz_performer: "dfdfdf",
+    quiz_data:
+      '[{"17":"48"},{"21":"131"},{"22":"61"},{"23":"67"},{"24":"71"},{"25":"76"},{"26":"24"},{"27":"130"},{"28":"100"},{"29":"114"},{"30":"112"},{"31":"109"},{"32":"126"},{"33":"122"},{"34":"80"},{"35":"11"},{"36":"104"},{"18":"52"},{"19":"117"},{"20":"54"}]',
+    quiz_view: 0,
+    quiz_hash: 1695635593842,
+  },
 };
-console.log(JSON.parse(body.SiteData))
