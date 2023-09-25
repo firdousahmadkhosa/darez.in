@@ -433,7 +433,7 @@ app.post("/create", async (req, res) => {
 app.post("/createQuiz", async (req, res, next) => {
   const { quiz_performer, quiz_data } = req.body;
   const newQuizData = {
-    quiz_uid: uuidv4(),
+    quiz_uid: Date.now(),
     quiz_performer: quiz_performer,
     quiz_data: JSON.stringify(quiz_data),
     quiz_view: 0,
