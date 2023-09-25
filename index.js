@@ -429,11 +429,24 @@ app.post("/create", async (req, res) => {
   // Respond with a success message or perform other actions
   res.status(200).send("Form data received successfully.");
 });
+ function generateShortRandomString() {
+   const characters = "0123456789abcdef";
+   let result = "";
 
+   for (let i = 0; i < 6; i++) {
+     const randomIndex = Math.floor(Math.random() * characters.length);
+     result += characters.charAt(randomIndex);
+   }
+
+   return result;
+ }
 app.post("/createQuiz", async (req, res, next) => {
   const { quiz_performer, quiz_data } = req.body;
+ 
+
+
   const newQuizData = {
-    quiz_uid: Date.now(),
+    quiz_uid:   generateShortRandomString(),
     quiz_performer: quiz_performer,
     quiz_data: JSON.stringify(quiz_data),
     quiz_view: 0,
