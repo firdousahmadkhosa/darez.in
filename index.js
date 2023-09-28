@@ -1304,7 +1304,7 @@ app.post("/updateSite", checkAuthorization, async (req, res, next) => {
   }
 });
 
-app.get("/deleteQuiz/:quiz_uid", checkAuthorization, async (req, res) => {
+app.get("/deleteQuiz/:quiz_uid", async (req, res) => {
 
   try {
     const challenge = await Challenge.findAll({
