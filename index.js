@@ -469,17 +469,23 @@ app.post("/createQuiz", async (req, res, next) => {
 });
 
 app.get("/getAllChallengerByQuizId/:quiz_uid", async (req, res) => {
-  const quiz_uid = req.params.quiz_uid;
-  const quiz = await Quiz.findOne({ where: { quiz_uid } });
-  // console.log(quiz);
 
-  const allChallenge = await Challenge.findAll({ where: { quiz_uid } });
-  const sites = await Site.findOne();
-  res.send({
-    quiz_owner: quiz.quiz_performer,
-    advertisementURL: sites.site_wishing_web,
-    quiz_performer: allChallenge,
-  });
+  try {
+      const quiz_uid = req.params.quiz_uid;
+     const quiz = await Quiz.findOne({ where: { quiz_uid } });
+     // console.log(quiz);
+
+     const allChallenge = await Challenge.findAll({ where: { quiz_uid } });
+     const sites = await Site.findOne();
+    return res.send({
+       quiz_owner: quiz.quiz_performer,
+       advertisementURL: sites.site_wishing_web,
+       quiz_performer: allChallenge,
+     });
+  } catch (error) {
+    return res.status(400).send({error:"Quiz no found!"});
+  }
+ 
 });
 app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
   const quiz_uid = req.params.quiz_uid;
