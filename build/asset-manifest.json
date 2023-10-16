@@ -1,20 +1,22 @@
 {
   "files": {
-    "main.css": "/static/css/main.b676bfbd.css",
-    "main.js": "/static/js/main.224b5f91.js",
+    "main.css": "/static/css/main.7b91c36a.css",
+    "main.js": "/static/js/main.ac97168c.js",
+    "static/js/787.c630a9f6.chunk.js": "/static/js/787.c630a9f6.chunk.js",
     "static/media/fb-Messenger.png": "/static/media/fb-Messenger.a52169358db321b5ef7c.png",
-    "static/media/snapchat.png": "/static/media/snapchat.b97249057b905ebde821.png",
     "static/media/Spinner.gif": "/static/media/Spinner.8288c4cf3df16413b510.gif",
     "static/media/2023.png": "/static/media/2023.82637c61349e4fd2cb87.png",
+    "static/media/snapchat.png": "/static/media/snapchat.b84f14c41496fc78f8a4.png",
     "static/media/stop.png": "/static/media/stop.454baf30ae84c8e52c9c.png",
     "static/media/beep-02.mp3": "/static/media/beep-02.b93d831d35f679e31846.mp3",
     "static/media/beep-01.mp3": "/static/media/beep-01.1eda3a397083fa06bc0b.mp3",
     "index.html": "/index.html",
-    "main.b676bfbd.css.map": "/static/css/main.b676bfbd.css.map",
-    "main.224b5f91.js.map": "/static/js/main.224b5f91.js.map"
+    "main.7b91c36a.css.map": "/static/css/main.7b91c36a.css.map",
+    "main.ac97168c.js.map": "/static/js/main.ac97168c.js.map",
+    "787.c630a9f6.chunk.js.map": "/static/js/787.c630a9f6.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b676bfbd.css",
-    "static/js/main.224b5f91.js"
+    "static/css/main.7b91c36a.css",
+    "static/js/main.ac97168c.js"
   ]
 }
