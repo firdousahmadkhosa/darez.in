@@ -167,6 +167,9 @@ const Question = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    t_id: {
+      type: DataTypes.BIGINT,
+    },
     q_title: {
       type: DataTypes.TEXT,
     },
@@ -181,6 +184,33 @@ const Question = sequelize.define(
   },
   {
     tableName: "question",
+    timestamps: false, // Disable timestamps
+  }
+);
+
+// Define the Type model
+const Type = sequelize.define(
+  "Type",
+  {
+    t_id: {
+      type: DataTypes.BIGINT,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    t_title: {
+      type: DataTypes.TEXT,
+    },
+    t_image: {
+      type: DataTypes.TEXT,
+      // defaultValue: true,
+    },
+    t_status: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+  },
+  {
+    tableName: "type",
     timestamps: false, // Disable timestamps
   }
 );
@@ -297,6 +327,10 @@ const Site = sequelize.define(
     timestamps: false, // Disable timestamps
   }
 );
+
+// Define the association between Type and Question
+Type.hasMany(Question, { foreignKey: "t_id" }); // Specify the foreign key name
+Question.belongsTo(Question, { foreignKey: "t_id" }); // Specify the foreign key name
 
 // Define the association between Question and Answer
 Question.hasMany(Answer, { foreignKey: "q_id" }); // Specify the foreign key name
@@ -812,10 +846,143 @@ app.post("/updateQuestion", checkAuthorization, async (req, res, next) => {
   }
 });
 
+app.post("/createType", checkAuthorization, async (req, res, next) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.send({ message: "Type image was required" });
+  }
+
+  // First, check if the type with the specified ID exists
+  const existingType = await Type.findOne({ where: { t_title: req.body.t_title } });
+
+  if (existingType) {
+    return res.status(404).json({ message: "Type title is already exist" });
+  }
+
+
+  const path_file = "./public/";
+  const fileOne = "img" + Date.now() + req.files.image.name;
+  //-----------------move profile into server-------------------------------//
+  await req.files.image.mv(path_file + "" + fileOne, async function (err) {
+    if (err) console.log("error occured");
+  });
+  try {
+    await Type.create({
+      t_title: req.body.t_title,
+      t_image: "/" + fileOne,
+      t_status: req.body.t_status,
+    });
+    return res.send({ message: "Type created successfully" });
+  } catch (error) {
+    console.error("Error create Type :", error);
+    return res.status(500).json({ message: "Error create Type" });
+  }
+});
+
+app.put("/updateType/:typeId", checkAuthorization, async (req, res, next) => {
+  const typeId = req.params.typeId;
+
+  try {
+    // First, check if the type with the specified ID exists
+    const existingType = await Type.findOne({ where: { t_id: typeId } });
+
+    if (!existingType) {
+      return res.status(404).json({ message: "Type not found" });
+    }
+
+    // Check if you received a new image file
+    if (req.files && Object.keys(req.files).length > 0) {
+      // Delete the old image file if it exists
+      if (existingType.t_image) {
+        const oldImagePath = "./public" + existingType.t_image;
+           if (fs.existsSync(oldImagePath)) {
+             // Remove the old image file
+             fs.unlinkSync(oldImagePath);
+           }
+      }
+
+      // Save the new image file
+      const path_file = "./public/";
+      const fileOne = "img" + Date.now() + req.files.image.name;
+      await req.files.image.mv(path_file + fileOne, async function (err) {
+        if (err) {
+          console.log("Error occurred while uploading the new image");
+          return res.status(500).json({ message: "Error updating Type" });
+        }
+      });
+
+      // Update the type with the new image path
+      existingType.t_image = "/" + fileOne;
+    }
+
+    // Update other fields if needed
+    existingType.t_title = req.body.t_title || existingType.t_title;
+    existingType.t_status = req.body.t_status || existingType.t_status;
+
+    // Save the updated type
+    await existingType.save();
+
+    return res.send({ message: "Type updated successfully" });
+  } catch (error) {
+    console.error("Error updating Type:", error);
+    return res.status(500).json({ message: "Error updating Type" });
+  }
+});
+
+
+app.delete(
+  "/deleteType/:typeId",
+  checkAuthorization,
+  async (req, res, next) => {
+    const typeId = req.params.typeId;
+
+    try {
+      // First, check if the type with the specified ID exists
+      const existingType = await Type.findOne({ where: { id: typeId } });
+
+      if (!existingType) {
+        return res.status(404).json({ message: "Type not found" });
+      }
+
+      // Check if the type has an associated image and delete it
+      if (existingType.t_image) {
+        const oldImagePath = "./public" + existingType.t_image;
+        if (fs.existsSync(oldImagePath)) {
+          // Remove the old image file
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+
+      // Delete the type from the database
+      await existingType.destroy();
+
+      return res.send({ message: "Type deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting Type:", error);
+      return res.status(500).json({ message: "Error deleting Type" });
+    }
+  }
+);
+
+
+app.get("/getAllTypes", async (req, res, next) => {
+  try {
+    // Fetch all types from the database
+    const allTypes = await Type.findAll();
+
+    // Return the list of types in the response
+    return res.json(allTypes);
+  } catch (error) {
+    console.error("Error fetching types:", error);
+    return res.status(500).json({ message: "Error fetching types" });
+  }
+});
+
+
 app.post("/createQuestion", checkAuthorization, async (req, res, next) => {
   try {
     await Question.create({
       q_title: req.body.q_title,
+      t_id:req.body.t_id,
       q_ctitle: req.body.q_ctitle,
       q_status: req.body.q_status,
     });

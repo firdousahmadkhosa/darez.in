@@ -1,0 +1,7 @@
+ALTER TABLE friendshipdares.question
+ADD t_id bigint;
+
+UPDATE friendshipdares.question
+SET t_id = 1
+WHERE q_id BETWEEN 13 AND 57;
+
