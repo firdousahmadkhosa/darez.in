@@ -60,6 +60,7 @@ app.use(
   })
 );
 // Sequelize setup
+
 // const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 //   host: "localhost",
 //   dialect: "mysql",
