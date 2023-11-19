@@ -660,9 +660,10 @@ app.post("/acceptChallenge", async (req, res, next) => {
   }
 });
 
-app.get("/getQuestionsWithAnswers", async (req, res, next) => {
+app.get("/getQuestionsWithAnswers/:t_id", async (req, res, next) => {
   try {
     const questionsWithAnswers = await Question.findAll({
+      where:{t_id:req.params.t_id},
       include: [Answer],
       limit: 30, // Limit the number of records to 20
     });
