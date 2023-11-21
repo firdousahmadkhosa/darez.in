@@ -835,6 +835,7 @@ app.post(
         q_title: req.body.q_text,
         q_ctitle: " ",
         q_status: 1,
+        t_id:req.body.t_id
       };
       const question = await Question.create(q);
 
