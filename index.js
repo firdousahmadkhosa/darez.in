@@ -69,9 +69,9 @@ app.use(
 
 
 const sequelize = new Sequelize(
-  "dares2",
-  "root",
-  "Password1",
+  "friendshipdares",
+  "new_username",
+  "MyP@ssw0rd2023",
   {
     host: "localhost",
     dialect: "mysql",
@@ -248,9 +248,6 @@ const Quiz = sequelize.define(
       type: DataTypes.BIGINT,
       primaryKey: true,
       autoIncrement: true,
-    },
-    t_id: {
-      type: DataTypes.BIGINT
     },
     quiz_uid: {
       type: DataTypes.STRING(255),
@@ -468,25 +465,25 @@ app.post("/create", async (req, res) => {
   // Respond with a success message or perform other actions
   res.status(200).send("Form data received successfully.");
 });
+ function generateShortRandomString() {
+   const characters = "0123456789abcdef";
+   let result = "";
 
-function generateShortRandomString() {
-  const characters = "0123456789abcdef";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters.charAt(randomIndex);
-  }
-  return result;
-}
+   for (let i = 0; i < 6; i++) {
+     const randomIndex = Math.floor(Math.random() * characters.length);
+     result += characters.charAt(randomIndex);
+   }
 
+   return result;
+ }
 app.post("/createQuiz", async (req, res, next) => {
+  const { quiz_performer, quiz_data } = req.body;
+ 
 
-  const { quiz_performer, quiz_data, t_id } = req.body;
 
   const newQuizData = {
-    quiz_uid: generateShortRandomString(),
+    quiz_uid:   generateShortRandomString(),
     quiz_performer: quiz_performer,
-    t_id: t_id,
     quiz_data: JSON.stringify(quiz_data),
     quiz_view: 0,
     quiz_hash: Date.now(),
@@ -499,6 +496,7 @@ app.post("/createQuiz", async (req, res, next) => {
         message: "Quiz created successfully",
         newQuizData,
       });
+      console.log("Quiz saved:", quiz.toJSON());
     })
     .catch((error) => {
       console.error("Error saving quiz:", error);
@@ -507,25 +505,23 @@ app.post("/createQuiz", async (req, res, next) => {
 });
 
 app.get("/getAllChallengerByQuizId/:quiz_uid", async (req, res) => {
-  console.log(res.body)
+
   try {
-    const quiz_uid = req.params.quiz_uid;
-    const quiz = await Quiz.findOne({ where: { quiz_uid } });
-    console.log("quiz", quiz)
-    const allChallenge = await Challenge.findAll({ where: { quiz_uid } });
-    console.log(allChallenge)
-    const sites = await Site.findOne();
+      const quiz_uid = req.params.quiz_uid;
+     const quiz = await Quiz.findOne({ where: { quiz_uid } });
+     // console.log(quiz);
+
+     const allChallenge = await Challenge.findAll({ where: { quiz_uid } });
+     const sites = await Site.findOne();
     return res.send({
-      quiz_owner: quiz.quiz_performer,
-      t_id: quiz.t_id,
-      advertisementURL: sites.site_wishing_web,
-      quiz_performer: allChallenge,
-
-    });
+       quiz_owner: quiz.quiz_performer,
+       advertisementURL: sites.site_wishing_web,
+       quiz_performer: allChallenge,
+     });
   } catch (error) {
-    return res.status(400).send({ error: "Quiz no found!" });
+    return res.status(400).send({error:"Quiz no found!"});
   }
-
+ 
 });
 app.get("/getQuizWithQuestionsAnswers/:quiz_uid", async (req, res, next) => {
   const quiz_uid = req.params.quiz_uid;
@@ -667,9 +663,9 @@ app.post("/acceptChallenge", async (req, res, next) => {
 app.get("/getQuestionsWithAnswers/:t_id", async (req, res, next) => {
   try {
     const questionsWithAnswers = await Question.findAll({
-      where: { t_id: req.params.t_id },
+      where:{t_id:req.params.t_id},
       include: [Answer],
-      // Limit the number of records to 20
+      limit: 30, // Limit the number of records to 20
     });
     return res.send(questionsWithAnswers);
   } catch (error) {
@@ -678,9 +674,9 @@ app.get("/getQuestionsWithAnswers/:t_id", async (req, res, next) => {
   }
 });
 
-app.get("/getQuestions/:t_id", async (req, res, next) => {
+app.get("/getQuestions", async (req, res, next) => {
   try {
-    const questions = await Question.findAll({ where: { t_id: req.params.t_id } });
+    const questions = await Question.findAll();
     return res.send(questions);
   } catch (error) {
     console.error("Error fetching questions with answers:", error);
@@ -873,7 +869,7 @@ app.post("/createType", checkAuthorization, async (req, res, next) => {
   try {
     await Type.create({
       t_title: req.body.t_title,
-      t_image: fileOne,
+      t_image: "/" + fileOne,
       t_status: req.body.t_status,
     });
     return res.send({ message: "Type created successfully" });
@@ -885,7 +881,7 @@ app.post("/createType", checkAuthorization, async (req, res, next) => {
 
 app.put("/updateType/:typeId", checkAuthorization, async (req, res, next) => {
   const typeId = req.params.typeId;
-  console.log("typeId", typeId)
+
   try {
     // First, check if the type with the specified ID exists
     const existingType = await Type.findOne({ where: { t_id: typeId } });
@@ -899,10 +895,10 @@ app.put("/updateType/:typeId", checkAuthorization, async (req, res, next) => {
       // Delete the old image file if it exists
       if (existingType.t_image) {
         const oldImagePath = "./public" + existingType.t_image;
-        if (fs.existsSync(oldImagePath)) {
-          // Remove the old image file
-          fs.unlinkSync(oldImagePath);
-        }
+           if (fs.existsSync(oldImagePath)) {
+             // Remove the old image file
+             fs.unlinkSync(oldImagePath);
+           }
       }
 
       // Save the new image file
@@ -987,7 +983,7 @@ app.post("/createQuestion", checkAuthorization, async (req, res, next) => {
   try {
     await Question.create({
       q_title: req.body.q_title,
-      t_id: req.body.t_id,
+      t_id:req.body.t_id,
       q_ctitle: req.body.q_ctitle,
       q_status: req.body.q_status,
     });
@@ -1002,15 +998,12 @@ app.post(
   "/createQuestionWithAnswers",
   checkAuthorization,
   async (req, res, next) => {
-    console.log(req)
     try {
       const q = {
         q_title: req.body.q_text,
         q_ctitle: " ",
         q_status: 1,
-        t_id: req.body.t_id
       };
-      console.log(q)
       const question = await Question.create(q);
 
       if (!req.files || Object.keys(req.files).length === 0) {
@@ -1347,9 +1340,11 @@ app.post("/updateAdmin", checkAuthorization, async (req, res, next) => {
 });
 
 app.get("/getSite", async (req, res, next) => {
+
+  
+
   try {
     const siteInformation = await Site.findAll();
-    // console.log(siteInformation)
     return res.send(siteInformation);
   } catch (error) {
     // console.error("Error updating admin:", error);
@@ -1487,7 +1482,7 @@ app.get("/deleteQuiz/:quiz_uid", async (req, res) => {
     });
 
     if (challenge.length > 0) {
-
+  
       await Challenge.destroy({
         where: { quiz_uid: req.params.quiz_uid }, // Corrected the extra "where" property
       });
@@ -1504,9 +1499,9 @@ app.get("/deleteQuiz/:quiz_uid", async (req, res) => {
     // Delete the question and its associated children
     await quiz.destroy();
 
-    return res.status(200).send({ message: "Quiz deleted successfully" }); // Respond with a 204 No Content status
+   return res.status(200).send({message:"Quiz deleted successfully"}); // Respond with a 204 No Content status
   }
-  catch (error) {
+   catch (error) {
     console.error("Error deleting parent and children:", error);
     res.status(500).json({ error: "Internal server error" });
   }
@@ -1520,18 +1515,18 @@ app.get("/deleteQuestionById/:q_id", checkAuthorization, async (req, res) => {
 
     if (answers.length > 0) {
       for (let i = 0; i < answers.length; i++) {
-        fs.unlink(
-          "./public" + answers[i].a_thumb,
-          (err) => {
-            if (err) {
-              console.error("Error occurred while deleting the file:", err);
-            } else {
-              console.log("File deleted successfully");
-            }
-          }
-        );
+         fs.unlink(
+           "./public" +answers[i].a_thumb,
+           (err) => {
+             if (err) {
+               console.error("Error occurred while deleting the file:", err);
+             } else {
+               console.log("File deleted successfully");
+             }
+           }
+         );
       }
-
+      
 
 
       await Answer.destroy({
