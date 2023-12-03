@@ -520,6 +520,7 @@ app.get("/getAllChallengerByQuizId/:quiz_uid", async (req, res) => {
     return res.send({
       quiz_owner: quiz.quiz_performer,
       t_id: quiz.t_id,
+      quiz:quiz,
       advertisementURL: sites.site_wishing_web,
       quiz_performer: allChallenge,
 
